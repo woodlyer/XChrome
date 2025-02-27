@@ -51,7 +51,8 @@ namespace XChrome.cs
         public static async Task OpenChrome(XChrome x)
         {
 
-            if(playwright==null) playwright = await Playwright.CreateAsync();
+            if(playwright==null) 
+                playwright = await Playwright.CreateAsync();
 
 
             //一些参数
