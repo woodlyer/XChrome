@@ -8,10 +8,7 @@
 > 暂只支持windows系统
 
 ## --简单视频教程？--
-<video width="640" height="360" controls>
-  <source src="https://youtu.be/onD1OIQkdWM" type="video/mp4">
-  简单视频
-</video>
+点击查看视频：：[https://youtu.be/onD1OIQkdWM](https://youtu.be/onD1OIQkdWM)
 
 
 ## --如何使用？--
