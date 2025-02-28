@@ -10,6 +10,9 @@
 ## --简单视频教程？--
 点击查看视频：：[https://youtu.be/onD1OIQkdWM](https://youtu.be/onD1OIQkdWM)
 
+## --安装插件？--
+![image](https://raw.githubusercontent.com/chanawudi/XChrome/refs/heads/master/screenshot/cj1.png)
+![image](https://raw.githubusercontent.com/chanawudi/XChrome/refs/heads/master/screenshot/cj2.png)
 
 ## --如何使用？--
 
