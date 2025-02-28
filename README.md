@@ -4,8 +4,15 @@
 ![image](https://github.com/chanawudi/XChrome/blob/master/screenshot/2.png?raw=true)
 
 ## --ÌØµã£¿--
-> Ãâ·Ñ£¬¿ªÔ´£¬Ö§³Ö¶ÀÁ¢´úÀí£¨ÎÞÐè²å¼þ£©£¬Ö§³ÖÄ£Äâ¸÷ÖÖ²Ù×÷ÏµÍ³£¬¸÷chrome°æ±¾µÈÖ¸ÎÆÐÅÐÄ£¬Ö§³ÖÈº¿ØÒ»´ø¶à£¬Ö§³Ö½Å±¾ÔËÐÐ£¨¿ª·¢ÖÐ£©
+> Ãâ·Ñ£¬¿ªÔ´£¬Ö§³Ö¶ÀÁ¢´úÀí£¨ÎÞÐè²å¼þ£©£¬Ö§³ÖÄ£Äâ¸÷ÖÖ²Ù×÷ÏµÍ³£¬¸÷chrome°æ±¾µÈÖ¸ÎÆÐÅÏ¢£¬Ö§³ÖÈº¿ØÒ»´ø¶à£¬Ö§³Ö½Å±¾ÔËÐÐ£¨¿ª·¢ÖÐ£©
 > ÔÝÖ»Ö§³ÖwindowsÏµÍ³
+
+## --¼òµ¥ÊÓÆµ½Ì³Ì£¿--
+<video width="640" height="360" controls>
+  <source src="https://youtu.be/onD1OIQkdWM" type="video/mp4">
+  ¼òµ¥ÊÓÆµ
+</video>
+
 
 ## --ÈçºÎÊ¹ÓÃ£¿--
 
@@ -23,6 +30,7 @@ https://dotnet.microsoft.com/zh-cn/download/dotnet/8.0 £¬ÕÒµ½ÆäÖÐµÄ ¡¾.NET ×ÀÃæÔ
 ÏÂÔØ¿ªÔ´³ÌÐò£¬ÓÃ Microsoft Visual Studio 2022 £¨°²×°µÄÊ±ºò¼ÇµÃ¹´Ñ¡.net 8.0×ÀÃæÖ§³Ö£© »òÒÔÉÏ°æ±¾±àÒë
 ±àÒëºóÇëÏÂÔØ±ØÒª×é¼þ£¬½øÐÐ½âÑ¹£¬È»ºó°ÑÕû¸ö .playwright ÎÄ¼þ¼Ð·Åµ½exe³ÌÐò¸ùÄ¿Â¼¼´¿É
 > ÏÂÔØ:https://wwuw.lanzoub.com/i6m3r2p2tw6h ÃÜÂë:bzmi
+
 
 
 ### 3.½øÈº½»Á÷
