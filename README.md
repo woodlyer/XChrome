@@ -15,7 +15,7 @@
 
 
 ### 1.傻瓜使用
-去官网【[http://www.web3tool.vip](https://note.youdao.com/)】下载编译好的完整程序包，直接运行
+去官网【[http://www.web3tool.vip](http://www.web3tool.vip)】下载编译好的完整程序包，直接运行
 > 程序依赖 （有的系统自带，请先运行，如不行再考虑下载）：
 微软.net 8.0 框架，如不能运行，请到下载地址下载安装：
 https://dotnet.microsoft.com/zh-cn/download/dotnet/8.0 ，找到其中的 【.NET 桌面运行时】
