@@ -115,7 +115,7 @@
                         </DataGridTextColumn>
                         
                         <!-- IP 列 -->
-                        <DataGridTextColumn Header="IP" Binding="{Binding Ip}" Width="130">
+                        <DataGridTextColumn Header="IP" Binding="{Binding Ip}" Width="150">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="{x:Type TextBlock}">
                                     <Setter Property="VerticalAlignment" Value="Center"/>

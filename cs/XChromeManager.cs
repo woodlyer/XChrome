@@ -9,6 +9,7 @@
 // --------------------------------------------------------------------------------
 */
 #endregion
+using log4net.Util;
 using Microsoft.Playwright;
 using Newtonsoft.Json.Linq;
 using System;
@@ -51,60 +52,178 @@ namespace XChrome.cs
         /// <returns></returns>
         public static async Task OpenChrome(XChrome x)
         {
-
             if(playwright==null)
             {
                 playwright = await Playwright.CreateAsync();
             }
 
-
-
-            //;
-            // 拼接出 AppData 目录："C:\Users\chanawudi\AppData"
-            //string appDataPath = Path.Combine(userProfile, "AppData");
-
-
             //一些参数
-            #region =====启动参数=========
-
             List<string> args = new List<string>();
             args.Add("--disable-features=IsolateOrigins,site-per-process");
             args.Add("--disable-features=ChromeLabs");
 
+            //加载插件
+            LoadExtensions(args,x);
+
+            //指纹参数
+            var options=BuildContextOptions(args,x,out var headers);
+
+
+            //创建context
+            var context=await BuildContextAsync(x.DataPath,options,headers);
+            
+            //更新xchrome
+            x.BrowserContext = context;
+            //加入缓存
+            lock (_lock_runing_xchrome) runing_xchrome.AddOrReplace(x.Id, x);
+
+
+           
+
+            #region=====绑定事件=====
+
+            //当关闭时,需要通知主窗口
+            context.Close += (sender, ibrowsercontext) =>
+            {
+                lock (_lock_runing_xchrome)
+                {
+                    if(runing_xchrome.ContainsKey(x.Id))runing_xchrome.Remove(x.Id);
+                }
+                CManager.notify_online(new List<long> { x.Id},false);   
+            };
+            CManager.notify_online(new List<long> { x.Id }, true);
+            
+
+            //新建页面的时候，需要更新内部page大小
+            context.Page += async (_, page) =>
+            {
+               // iszzz = false;
+                var v = x.ViewportSize;
+                if(v!=null)
+                {
+                    await page.SetViewportSizeAsync(v.Width, v.Height);
+                    //iszzz = true;
+                }
+            };
+
+            
+            
+
+            #endregion
+
+
+
+            //打开页面
+            IPage? page =  context.Pages[0];
+            await page.SetContentAsync(GetHomePageHtml(x));
+
+
+
+            #region=====绑定句柄=====
+
+            //查找句柄
+            string className = "Chrome_WidgetWin_1";
+            long xhwd = 0;
+            int timeoutNum = 30;
+            while (xhwd == 0)
+            {
+                xhwd = Win32Helper.FindWindow(className, "环境：" + x.Id.ToString()+ " - Chromium").ToInt64();
+                if (xhwd != 0) break;
+                await Task.Delay(500);
+                timeoutNum--;
+                if (timeoutNum == 0) {
+                    cs.Loger.Err("获取环境浏览器句柄失败！");
+                    break;
+                }
+            }
+            x.Hwnd = xhwd;
+
+            #endregion
+
+
+            if (!_is_jober_AdjustmentView)
+            {
+                _is_jober_AdjustmentView = true;
+                cs.JoberManager.AddJob(jober_AdjustmentView);
+            }
+        }
+
+
+
+        /// <summary>
+        /// 加载插件
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="x"></param>
+        private static void LoadExtensions(List<string> args, XChrome x)
+        {
+            
             //插件
             List<string> extensionList = new List<string>();
-            string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            if (Directory.Exists(userProfile))
+            //需要加载系统插件
+            List<string> needChromeEx = new List<string>();
+            //需要的插件
+            string[] el = x.Extensions.Split("|");
+            //先看插件目录
+            string exPath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "Extensions");
+            foreach (var e in el)
             {
+                if (e == "") continue;
+                string epath=System.IO.Path.Combine(exPath, e);
+                if (!Directory.Exists(epath)) {
+                    needChromeEx.Add(e.Trim());
+                    continue;
+                }
+                var ds = System.IO.Directory.GetDirectories(epath);
+                if (ds.Count() > 0)
+                {
+                    string _ep1 = ds[0];
+                    extensionList.Add(_ep1);
+                }
+            }
+
+            //在看系统目录
+            if (needChromeEx.Count > 0)
+            {
+                string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
                 string expath = System.IO.Path.Combine(userProfile, "AppData", "Local", "Google", "Chrome", "User Data", "Default", "Extensions");
-                string[] el=x.Extensions.Split("|");
-                foreach (string ext in el) {
-                    var _e = ext.Trim();
-                    string _ep = expath + "\\" + _e;
-                    if (System.IO.Path.Exists(_ep)) { 
-                        var ds=System.IO.Directory.GetDirectories(_ep);
-                        if (ds.Count() > 0) {
+                foreach (var e in needChromeEx)
+                {
+                    if (e == "") continue;
+                    string _ep = expath + "\\" + e;
+                    if (System.IO.Path.Exists(_ep))
+                    {
+                        var ds = System.IO.Directory.GetDirectories(_ep);
+                        if (ds.Count() > 0)
+                        {
                             string _ep1 = ds[0];
                             extensionList.Add(_ep1);
                         }
                     }
                 }
             }
-            if (extensionList.Count() > 0) {
+
+            //去重
+            extensionList=extensionList.Distinct().ToList();
+
+            if (extensionList.Count() > 0)
+            {
                 string _exlist = string.Join(",", extensionList);
-                args.Add($"--disable-extensions-except="+ _exlist);
-                args.Add($"--load-extension="+ _exlist);
+                args.Add($"--disable-extensions-except=" + _exlist);
+                args.Add($"--load-extension=" + _exlist);
             }
+        }
 
-           
-
-
-            #endregion
-
-            #region =====指纹参数======
-
+        /// <summary>
+        /// 创建 contextoptions
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="x"></param>
+        /// <param name="headers"></param>
+        private static BrowserTypeLaunchPersistentContextOptions BuildContextOptions(List<string> args, XChrome x,out Dictionary<string, string> headers)
+        {
             //解读xchrome环境evns
-            JObject evnJ = JObject.Parse(string.IsNullOrEmpty(x.Evns)? "{}": x.Evns);
+            JObject evnJ = JObject.Parse(string.IsNullOrEmpty(x.Evns) ? "{}" : x.Evns);
             var options = new BrowserTypeLaunchPersistentContextOptions()
             {
                 UserAgent = x.UserAgent,
@@ -157,10 +276,6 @@ namespace XChrome.cs
                 var Longitude = (float)Convert.ToDecimal(evnJ["Geolocation"]["Longitude"].ToString());
                 options.Geolocation = new Geolocation { Latitude = Latitude, Longitude = Longitude };
             }
-
-            
-            //headers
-            Dictionary<string, string> headers = null; 
             if (evnJ["ExtraHTTPHeaders"] != null)
             {
                 headers = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(evnJ["ExtraHTTPHeaders"].ToString());
@@ -170,58 +285,29 @@ namespace XChrome.cs
                 headers = new Dictionary<string, string>();
             }
             headers.Add("User-Agent", x.UserAgent);
+            return options;
+        }
 
-
-            #endregion
-
-
+        /// <summary>
+        /// 创建 IBrowserContext
+        /// </summary>
+        /// <param name="DataPath"></param>
+        /// <param name="options"></param>
+        /// <param name="headers"></param>
+        /// <returns></returns>
+        private static async Task<IBrowserContext> BuildContextAsync(string DataPath, BrowserTypeLaunchPersistentContextOptions options, Dictionary<string, string> headers)
+        {
             //创建context
-            var context = await playwright.Chromium.LaunchPersistentContextAsync(x.DataPath, options );
-            x.BrowserContext = context;
-            //加入缓存
-            lock (_lock_runing_xchrome)
-                runing_xchrome.AddOrReplace(x.Id, x);
-
+            var context = await playwright.Chromium.LaunchPersistentContextAsync(DataPath, options);
             //设置headers
-            if (headers != null)
+            if (headers != null && headers.Count>0)
                 await context.SetExtraHTTPHeadersAsync(headers);
+            return context; 
+        }
 
 
-            #region=====绑定事件=====
-
-            //当关闭时,需要通知主窗口
-            context.Close += (sender, ibrowsercontext) =>
-            {
-                lock (_lock_runing_xchrome)
-                {
-                    if(runing_xchrome.ContainsKey(x.Id))runing_xchrome.Remove(x.Id);
-                }
-                CManager.notify_online(new List<long> { x.Id},false);   
-            };
-            CManager.notify_online(new List<long> { x.Id }, true);
-            
-
-            //新建页面的时候，需要更新内部page大小
-            context.Page += async (_, page) =>
-            {
-               // iszzz = false;
-                var v = x.ViewportSize;
-                if(v!=null)
-                {
-                    await page.SetViewportSizeAsync(v.Width, v.Height);
-                    //iszzz = true;
-                }
-            };
-
-            
-            
-
-            #endregion
-
-
-
-            #region=====打开首页=====
-
+        private static string GetHomePageHtml(XChrome x)
+        {
             string html = $@"
 <!DOCTYPE html>
 <html lang=""en"">
@@ -252,46 +338,8 @@ namespace XChrome.cs
 </body>
 </html>
 ";
-            //
-            //打开页面
-            IPage? page =  context.Pages[0];
-            await page.SetContentAsync(html);
-
-           
-
-            #endregion
-
-
-
-            #region=====绑定句柄=====
-
-            //查找句柄
-            string className = "Chrome_WidgetWin_1";
-            long xhwd = 0;
-            int timeoutNum = 30;
-            while (xhwd == 0)
-            {
-                xhwd = Win32Helper.FindWindow(className, "环境：" + x.Id.ToString()+ " - Chromium").ToInt64();
-                if (xhwd != 0) break;
-                await Task.Delay(500);
-                timeoutNum--;
-                if (timeoutNum == 0) {
-                    cs.Loger.Err("获取环境浏览器句柄失败！");
-                    break;
-                }
-            }
-            x.Hwnd = xhwd;
-
-            #endregion
-
-
-            if (!_is_jober_AdjustmentView)
-            {
-                _is_jober_AdjustmentView = true;
-                cs.JoberManager.AddJob(jober_AdjustmentView);
-            }
+            return html;
         }
-
 
         /// <summary>
         /// 获得所有运行中xchrome
@@ -807,6 +855,14 @@ namespace XChrome.cs
         /// <returns></returns>
         private static Proxy? getProxy(string proxy = "")
         {
+
+            //return new Proxy
+            //{
+            //    // 使用 SOCKS5 代理（格式："socks5://代理IP:端口"）
+            //    Server = "socks5://svipceshi:svipceshi@31.56.139.177:6246"
+            //};
+
+
             if (proxy != "")
             {
                 if (!proxy.StartsWith("http") && !proxy.StartsWith("socks5"))

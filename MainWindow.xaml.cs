@@ -121,7 +121,7 @@ namespace XChrome
 
             //检测更新
             AutoUpdater.SetOwner(this);
-            AutoUpdater.Start("https://down.web3tool.vip/xchrome/xchrome_update.xml");
+            AutoUpdater.Start("https://down.web3tool.vip/xchrome/xchrome_update.xml?r="+cs.tools.YTools.YUtils.GetTime10_sample(DateTime.Now));
 
             Func<Task> load = async () => {
                 //初始化日志

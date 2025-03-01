@@ -29,8 +29,8 @@
                 <RowDefinition Height="0"></RowDefinition>
                 <RowDefinition Height="90"></RowDefinition>
                 <RowDefinition Height="50"></RowDefinition>
-                <RowDefinition Height="190"></RowDefinition>
-                <RowDefinition Height="155"></RowDefinition>
+                <RowDefinition Height="170"></RowDefinition>
+                <RowDefinition Height="185"></RowDefinition>
                 <RowDefinition Height="90"></RowDefinition>
             </Grid.RowDefinitions>
 
@@ -100,15 +100,14 @@
             </StackPanel>
             <StackPanel Grid.Column="1" Grid.Row="7" Orientation="Vertical">
                 <TextBlock x:Name="check_proxy_result" x:FieldModifier="private" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" FontStyle="Italic" TextDecorations="Underline">-</TextBlock>
-                <TextBlock HorizontalAlignment="Left"  Width="500" Height="190" LineHeight="20"  Margin="10,10,0,5" >
+                <TextBlock HorizontalAlignment="Left"  Width="500" Height="140" LineHeight="20"  Margin="10,10,0,5" >
                     支持以下填写格式：<LineBreak/>
                     192.168.0.1:8000<LineBreak/>
                     http://192.168.0.1:8000<LineBreak/>
                     192.168.0.1:8000:代理账号:代理密码<LineBreak/>
                     http://192.168.0.1:8000:代理账号:代理密码<LineBreak/>
-                    socks5://192.168.0.1:8000<LineBreak/>
-                    socks5://192.168.0.1:8000:代理账号:代理密码<LineBreak/>
-                    [刷新URL]<LineBreak/>
+                    <Run Text="暂不支持 socks5协议" Foreground="Red"></Run>
+                    
                 </TextBlock>
             </StackPanel>
 
@@ -116,10 +115,13 @@
             <Label Content="插件：" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0" FontSize="14" Grid.Column="0" Grid.Row="8"></Label>
             <StackPanel Grid.Column="1" Grid.Row="8" Orientation="Vertical" VerticalAlignment="Top" Margin="0,10,0,0">
                 <TextBox x:Name="exlist_text" HorizontalAlignment="Left" ScrollViewer.VerticalScrollBarVisibility="Visible" AcceptsReturn="True" VerticalContentAlignment="Top" Width="400" Height="80"  Margin="0,0,0,5" ></TextBox>
-                <TextBlock>
+                <TextBlock LineHeight="20">
                     插件ID，一行一个<LineBreak/>
-                    该插件，必须是你电脑默认chrome浏览器已经安装了的插件<LineBreak/>
-                    请注意：如果你默认chrome浏览器卸载了插件，这里会调用失败
+                    插件首先会在 <Run Foreground="Red">插件文件夹</Run> <Hyperlink Click="Hyperlink_Click" TextDecorations="Underline">点击打开文件夹</Hyperlink>寻找，
+                    <LineBreak/>
+                    如果没有找到，会在电脑系统默认chrome浏览器中寻找插件 <Hyperlink Click="Hyperlink_Click2" TextDecorations="Underline">点击系统浏览器插件文件夹</Hyperlink>
+                    <LineBreak/>
+                    所有环境可以共享插件目录，插件数据会自动隔离
                 </TextBlock>
             </StackPanel>
 

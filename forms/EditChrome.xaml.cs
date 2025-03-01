@@ -11,6 +11,8 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -134,9 +136,9 @@ namespace XChrome.forms
         private async void check_proxy_btn_Click(object sender, RoutedEventArgs e)
         {
             string proxy = proxy_text.Text;
-            if (proxy.StartsWith("["))
+            if (proxy.StartsWith("[") || proxy.StartsWith("socks5"))
             {
-                MainWindow.Toast_Error("这种格式正在开发中..");
+                MainWindow.Toast_Error("暂不支持该协议..");
                 return;
             }
             proxy = proxy.Replace("：",":");
@@ -367,5 +369,41 @@ namespace XChrome.forms
             string userAgent = $"Mozilla/5.0 ({platform}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chromeVersion} Safari/537.36";
             return userAgent;
         }
+
+        /// <summary>
+        /// 打开插件文件夹目录
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Hyperlink_Click(object sender, RoutedEventArgs e)
+        {
+            string path =System.IO. Path.Combine(System.IO.Directory.GetCurrentDirectory(), "Extensions");
+            if (!System.IO.Directory.Exists(path))
+            {
+                System.IO.Directory.CreateDirectory(path);
+            }
+            // 启动 Windows 资源管理器并打开文件夹
+            Process.Start(new ProcessStartInfo("explorer.exe", path)
+            {
+                UseShellExecute = true
+            });
+        }
+        private void Hyperlink_Click2(object sender, RoutedEventArgs e)
+        {
+            string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string expath = System.IO.Path.Combine(userProfile, "AppData", "Local", "Google", "Chrome", "User Data", "Default", "Extensions");
+            
+            if (!System.IO.Directory.Exists(expath))
+            {
+                MainWindow.Toast_Error("没有找到系统插件目录");
+                return;
+            }
+            // 启动 Windows 资源管理器并打开文件夹
+            Process.Start(new ProcessStartInfo("explorer.exe", expath)
+            {
+                UseShellExecute = true
+            });
+        }
+        
     }
 }
