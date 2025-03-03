@@ -118,10 +118,13 @@ namespace XChrome
             }
 #endif
 
+            if(!await cs.Test.TestAndGoAsync()) {
+                return false;
+            }
 
             //检测更新
             AutoUpdater.SetOwner(this);
-            AutoUpdater.Start("https://down.web3tool.vip/xchrome/xchrome_update.xml?r="+cs.tools.YTools.YUtils.GetTime10_sample(DateTime.Now));
+            AutoUpdater.Start("https://down.web3tool.vip/xchrome/xchrome_update.xml");
 
             Func<Task> load = async () => {
                 //初始化日志
@@ -332,10 +335,14 @@ namespace XChrome
                     MainFrame_other.Navigate(new pages.GroupManager());
                     break;
                 case 2:
-                    MainFrame_other.Navigate(new pages.coding());
+                    MainFrame_other.Navigate(new pages.Coding());
+                    break;
+                case 5:
+                    //系统设置
+                    MainFrame_other.Navigate(new pages.SetConfig());
                     break;
                 default:
-                    MainFrame_other.Navigate(new pages.coding());
+                    MainFrame_other.Navigate(new pages.Coding());
                     break;
             }
 

@@ -3,7 +3,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
     xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
-    xmlns:av="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="av"
+    xmlns:av="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="av"
     x:Class="XChrome.forms.EditChrome"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     Title="EditChrome"
@@ -90,6 +91,11 @@
             <Label Content="代理：" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" Grid.Column="0" Grid.Row="6"></Label>
             <StackPanel Grid.Column="1" Grid.Row="6" Orientation="Horizontal">
                 <TextBox x:Name="proxy_text" HorizontalAlignment="Left" Width="300" Height="30" ></TextBox>
+
+                <ComboBox x:Name="proxy_check_type" x:FieldModifier="private" Width="100" Height="30" Margin="5,0,0,0" SelectedIndex="0">
+                    <ComboBoxItem Content="随机检测库"></ComboBoxItem>
+                </ComboBox>
+
                 <Button x:Name="check_proxy_btn" x:FieldModifier="private" Click="check_proxy_btn_Click" HorizontalAlignment="Center" Height="30" Margin="5" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <iconPacks:PackIconFontAwesome Kind="CheckDoubleSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
@@ -139,4 +145,5 @@
 
         </Grid>
     </ScrollViewer>
+
 </adonisControls:AdonisWindow>

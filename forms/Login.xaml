@@ -20,7 +20,7 @@
         <TextBlock x:Name="tip" LineHeight="20" HorizontalAlignment="Left" Margin="39,78,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Height="78" Width="432" FontSize="13">
             啊哦~遇到问题：<LineBreak/>
                 1.本软件是免费且开源的，你可以去  <Hyperlink x:Name="gogithub_url" NavigateUri="http://www.example.com" RequestNavigate="gogithub_url_RequestNavigate">github项目页</Hyperlink> 自己下载并去掉该页面<LineBreak/>
-                2.你也可以加入本社群，在群公告不定期更新当前登陆码,<Hyperlink x:Name="goqq_url" NavigateUri="http://www.example.com" RequestNavigate="goqq_url_RequestNavigate">点击加入</Hyperlink>
+                2.你也可以加入本社群，在群公告有当前免费登陆码,<Hyperlink x:Name="goqq_url" NavigateUri="http://www.example.com" RequestNavigate="goqq_url_RequestNavigate">点击加入</Hyperlink> ，或者手动加QQ群：30286103
 
         </TextBlock>
         <Button Content=" 确 定 " HorizontalAlignment="Left" Margin="169,173,0,0" VerticalAlignment="Top" Height="34" Width="130" Click="Button_Click"/>

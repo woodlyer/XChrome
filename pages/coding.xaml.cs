@@ -29,9 +29,9 @@ namespace XChrome.pages
     /// <summary>
     /// coding.xaml 的交互逻辑
     /// </summary>
-    public partial class coding : Page
+    public partial class Coding : Page
     {
-        public coding()
+        public Coding()
         {
             InitializeComponent();
         }

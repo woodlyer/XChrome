@@ -122,12 +122,14 @@ namespace XChrome.cs
             #region=====绑定句柄=====
 
             //查找句柄
+            string chromeName =cs.Config.chrome_path==""? "Chromium": "Google Chrome";
+
             string className = "Chrome_WidgetWin_1";
             long xhwd = 0;
             int timeoutNum = 30;
             while (xhwd == 0)
             {
-                xhwd = Win32Helper.FindWindow(className, "环境：" + x.Id.ToString()+ " - Chromium").ToInt64();
+                xhwd = Win32Helper.FindWindow(className, "环境：" + x.Id.ToString()+ " - "+ chromeName).ToInt64();
                 if (xhwd != 0) break;
                 await Task.Delay(500);
                 timeoutNum--;
@@ -222,13 +224,22 @@ namespace XChrome.cs
         /// <param name="headers"></param>
         private static BrowserTypeLaunchPersistentContextOptions BuildContextOptions(List<string> args, XChrome x,out Dictionary<string, string> headers)
         {
+            string chrome_exePath = "";
+            if (cs.Config.chrome_path == "")
+            {
+                chrome_exePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), ".playwright", "chrome", "chromium-1117", "chrome-win", "chrome.exe");
+            }
+            else
+            {
+                chrome_exePath = cs.Config.chrome_path;
+            }
+
             //解读xchrome环境evns
             JObject evnJ = JObject.Parse(string.IsNullOrEmpty(x.Evns) ? "{}" : x.Evns);
             var options = new BrowserTypeLaunchPersistentContextOptions()
             {
                 UserAgent = x.UserAgent,
-                ExecutablePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), ".playwright", "chrome", "chromium-1117", "chrome-win", "chrome.exe"),
-                //ExecutablePath= "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+                ExecutablePath = chrome_exePath,
                 Headless = false,
                 Proxy = getProxy(x.Proxy),
                 Args = args,
@@ -308,6 +319,9 @@ namespace XChrome.cs
 
         private static string GetHomePageHtml(XChrome x)
         {
+            //加userid只是为了统计装机量
+            string pageurl = cs.Config.chrome_start_page+"?u="+cs.Config.userid;
+
             string html = $@"
 <!DOCTYPE html>
 <html lang=""en"">
@@ -334,7 +348,7 @@ namespace XChrome.cs
 <body>
   <!-- 此处 src 可替换为你需要加载的页面地址 -->
   <iframe id='mainiframe' src=""""></iframe>
-  <script>setTimeout(()=>{{document.getElementById('mainiframe').src='{cs.Config.chrome_start_page}'}},200)</script>
+  <script>setTimeout(()=>{{document.getElementById('mainiframe').src='{pageurl}'}},200)</script>
 </body>
 </html>
 ";
@@ -346,7 +360,7 @@ namespace XChrome.cs
         /// </summary>
         /// <returns></returns>
         public static Dictionary<long, XChrome> GetRuningXchromes()
-        {
+        { 
             return runing_xchrome;
         }
 

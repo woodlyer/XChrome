@@ -5,6 +5,7 @@
     xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
     xmlns:av="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="av"
     x:Class="XChrome.MainWindow"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     Title="MainWindow"
     Width="1233"
     Height="665"
@@ -63,8 +64,14 @@
                             <TextBlock Padding="5,3,5,0" FontSize="14"><Run Text="回收站"/></TextBlock>
                         </StackPanel>
                     </ListBoxItem>
+                    <Line X1="1" Y1="10" X2="120" Y2="10" Stroke="Black" StrokeThickness="0.1" />
+                    <ListBoxItem Height="39" HorizontalAlignment="Center" Padding="20,9,0,4" Width="160" VerticalAlignment="Bottom">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <iconPacks:PackIconFontAwesome Kind="ScrewdriverWrenchSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
+                            <TextBlock VerticalAlignment="Center" FontSize="14" Text="系统设置"/>
+                        </StackPanel>
+                    </ListBoxItem>
 
-                    
 
                 </ListBox>
                 <StackPanel VerticalAlignment="Bottom" Orientation="Horizontal" HorizontalAlignment="Center">

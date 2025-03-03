@@ -35,3 +35,10 @@ https://dotnet.microsoft.com/zh-cn/download/dotnet/8.0 £¬ÕÒµ½ÆäÖĞµÄ ¡¾.NET ×ÀÃæÔ
 
 ### 3.½øÈº½»Á÷
 > ½øÉçÇøÍ³Ò»ÏÈ½øQQÈº£¬È»ºó½»Á÷ÔÙÀ­Î¢ĞÅÈº £¬µ±Ç°QQÈº£º30286103 £¬¼ÓÈº±¸×¢£ºÖ¸ÎÆä¯ÀÀÆ÷
+
+
+### Ğí¿ÉÖ¤£¨License£©
+
+±¾ÏîÄ¿²ÉÓÃ [Creative Commons BY-NC 4.0 ¹ú¼ÊĞí¿ÉĞ­Òé](https://creativecommons.org/licenses/by-nc/4.0/deed.zh) ½øĞĞĞí¿É¡£  
+¾ßÌåÇë²ÎÔÄ [LICENSE](LICENSE) ÎÄ¼ş¡£
+[License](https://img.shields.io/badge/License-CC_BY--NC_4.0-lightgrey.svg)

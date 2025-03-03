@@ -16,6 +16,8 @@ using System.Linq;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Shapes;
+using XChrome.cs.db;
 
 namespace XChrome.cs
 {
@@ -24,7 +26,11 @@ namespace XChrome.cs
         /// <summary>
         /// 数据存储位置
         /// </summary>
-        public static string chrome_data_path = Path.Combine(Directory.GetCurrentDirectory(), "chrome_data");
+        public static string chrome_data_path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "chrome_data");
+        /// <summary>
+        /// 本地安装的唯一标识
+        /// </summary>
+        public static string userid = "";
         /// <summary>
         /// 启动页
         /// </summary>
@@ -39,9 +45,24 @@ namespace XChrome.cs
         /// github
         /// </summary>
         public static string github_url = "http://web3tool.vip/xchrome/github";
+
+        /// <summary>
+        /// 自定义chrome路径
+        /// </summary>
+        public static string chrome_path = "";
         public static async Task ini()
         {
-            if (!Path.Exists(chrome_data_path)) { Directory.CreateDirectory(chrome_data_path); }
+            if (!System.IO.Path.Exists(chrome_data_path)) { Directory.CreateDirectory(chrome_data_path); }
+            var db = MyDb.DB;
+            userid=await db.Queryable<cs.db.Config>().Where(it => it.key == "userid").Select(it => it.val).FirstAsync();
+            var cp = await db.Queryable<cs.db.Config>().Where(it => it.key == "chromePath").FirstAsync();
+            if (cp != null)
+            {
+                chrome_path = cp.val.Trim();
+            }
+            
+
+            db.Close();
         }
     }
 }

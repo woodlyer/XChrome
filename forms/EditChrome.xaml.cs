@@ -24,6 +24,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using XChrome.cs;
 using XChrome.cs.db;
 using XChrome.cs.tools.YTools;
 
@@ -71,6 +72,13 @@ namespace XChrome.forms
             foreach (Group group in list) { 
                 groupList.Items.Add(group);
             }
+
+            //设置检测库
+            foreach (cs.ChecKUrl cu in Enum.GetValues(typeof(cs.ChecKUrl)))
+            {
+                proxy_check_type.Items.Add(new ComboBoxItem() { Content = cu });
+            }
+            //
         }
 
         /// <summary>
@@ -135,6 +143,24 @@ namespace XChrome.forms
         /// <param name="e"></param>
         private async void check_proxy_btn_Click(object sender, RoutedEventArgs e)
         {
+
+            //先找到协议 proxy_check_type
+            ChecKUrl cku = ChecKUrl.Ipip_net;
+            if (proxy_check_type.SelectedIndex == 0)
+            {
+                // 获取所有枚举的值
+                Array values = Enum.GetValues(typeof(ChecKUrl));
+                // 创建 Random 对象
+                Random random = new Random();
+                // 随机选择一个索引，并取得对应的枚举值
+                cku = (ChecKUrl)values.GetValue(random.Next(values.Length));
+            }
+            else
+            {
+                cku= (ChecKUrl)Enum.Parse(typeof(ChecKUrl), proxy_check_type.Text);
+            }
+
+
             string proxy = proxy_text.Text;
             if (proxy.StartsWith("[") || proxy.StartsWith("socks5"))
             {
@@ -143,31 +169,22 @@ namespace XChrome.forms
             }
             proxy = proxy.Replace("：",":");
             check_proxy_btn.IsEnabled = false;
-            check_proxy_btn_text.Text = "...";
-            string x = "";
-            try
+            check_proxy_btn_text.Text = "测试中....";
+
+
+            var xx= await IpChecker.CheckAsync(cku, proxy);
+            if (xx.Item1 == false)
             {
-                x = await new YHttp().Get().Url("https://myip.ipip.net/").Proxy(proxy).GetAsync_String();
-            }
-            catch (Exception ee)
-            {
-                check_proxy_result.Text = ee.Message;
+                check_proxy_result.Text = xx.Item2.Length>50?xx.Item2.Substring(0,49):xx.Item2;
                 check_proxy_btn.IsEnabled = true;
                 check_proxy_btn_text.Text = "测试代理";
                 return;
             }
-            if (x == null) {
-                check_proxy_result.Text = "获取错误！";
-                check_proxy_btn.IsEnabled = true;
-            }
-            x = x.Replace("\r\n", "\n").Replace("\n", "");
-            if (x.IndexOf("来自于：") >= 0)
-            {
-                proxytext = x.Substring(x.IndexOf("来自于：")+4);
-            }
-            check_proxy_result.Text = x;
+            check_proxy_result.Text = xx.Item2;
             check_proxy_btn.IsEnabled = true;
             check_proxy_btn_text.Text = "测试代理";
+
+            
         }
 
         /// <summary>
@@ -197,6 +214,7 @@ namespace XChrome.forms
             c.envs=othertxt.Text.Trim();
             c.extensions =exlist_text.Text.Trim().Replace("\r\n","|").Replace("\n","|");
             //othertxt
+            if (proxy == "") c.proxyText = "";
 
             var db = MyDb.DB;
             try
