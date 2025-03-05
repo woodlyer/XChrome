@@ -18,9 +18,12 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Forms;
 using XChrome.cs.db;
 using XChrome.cs.win32;
+using XChrome.cs.xchrome;
+using static XChrome.cs.win32.Win32Helper;
 
 namespace XChrome.cs
 {
@@ -36,6 +39,7 @@ namespace XChrome.cs
 
         private static bool _isRunning = false;
         //主控id
+        private static XChromeClient? _xchrome = null;
         private static long _main_xchrome_id = 0;
         private static IntPtr _main_hwd=IntPtr.Zero;
         //主控位置
@@ -46,6 +50,24 @@ namespace XChrome.cs
         private static double _main_width = 0;
         private static double _main_height = 0;
 
+
+        private static (bool,RECT?) IsInExtensions(int pointX,int pointY)
+        {
+            if (_xchrome == null) return (false,null);
+            var exhwnd = _xchrome.ExtensionsHwnd;
+            if(exhwnd==0)return (false,null);
+            //判断窗口是否存在
+            var iswindow= Win32Helper.IsWindow((IntPtr)exhwnd);
+            if (!iswindow) return (false,null);
+            var isvisb = Win32Helper.IsWindowVisible((IntPtr)exhwnd);
+            if(!isvisb) return (false, null);
+            Win32Helper.GetWindowRect((IntPtr)exhwnd,out var rect);
+            int w = rect.Right - rect.Left;
+            //Debug.WriteLine(w);
+            if (pointX < _main_left || pointX > _main_right || pointY < _main_top || pointY > _main_bottom) return (false,null);
+            return (true, rect);
+        }
+
         private static void ConsumerAction(MouseEvent me)
         {
             if(!_isRunning) return;
@@ -54,22 +76,43 @@ namespace XChrome.cs
             {
                 if (me.mouseClickArgs == null) return;
                 var args = me.mouseClickArgs;
+                if (_xchrome == null) return;
+
+
+                //第一步，判断是否在插件内
+                var isInExs= IsInExtensions(args.X, args.Y);
+                if (isInExs.Item1)
+                {
+                    int _xx =  args.X - isInExs.Item2.Value.Left;
+                    int _yy =  args.Y - isInExs.Item2.Value.Top;
+                    Win32Helper.LockSetForegroundWindow(1);
+                    if (args.Button == MouseButtons.Left)
+                    {
+                        XChromeManager.Instance._ManagerControler.CopyControl_Click(_xchrome.ExtensionsHwnd, _xx, _yy,true);
+                    }
+                    else
+                    {
+                        XChromeManager.Instance._ManagerControler.CopyControl_Click(_xchrome.ExtensionsHwnd, _xx, _yy,true, "Right");
+                    }
+                    return;
+                }
 
                 //判断是否主控内
                 if (args.X < _main_left || args.X > _main_right || args.Y < _main_top || args.Y > _main_bottom) return;
                 //计算点击的相对位置
-                double xx = _isRatio ? ((args.X - _main_left) / _main_width) : (args.X - _main_left);
-                double yy = _isRatio ? ((args.Y - _main_top) / _main_height) : (args.Y - _main_top);
+                int xx = args.X - _main_left;
+                int yy = args.Y - _main_top;
 
+                Win32Helper.LockSetForegroundWindow(1);
                 //传递
                 if (args.Button == MouseButtons.Left)
                 {
 
-                    XChromeManager.CopyControl_Click(_main_xchrome_id, xx, yy);
+                    XChromeManager.Instance._ManagerControler.CopyControl_Click(_main_xchrome_id, xx, yy,false);
                 }
                 else
                 {
-                    XChromeManager.CopyControl_Click(_main_xchrome_id, xx, yy, "Right");
+                    XChromeManager.Instance._ManagerControler.CopyControl_Click(_main_xchrome_id, xx, yy,false, "Right");
                 }
                 return;
             }
@@ -79,12 +122,23 @@ namespace XChrome.cs
             {
                 if (me.mouseWheelArgs == null) return;
                 var args = me.mouseWheelArgs;
+                //第一步，判断是否在插件内
+                var isInExs = IsInExtensions(args.X, args.Y);
+                if (isInExs.Item1)
+                {
+                    int _xx = args.X - isInExs.Item2.Value.Left;
+                    int _yy = args.Y - isInExs.Item2.Value.Top;
+                    XChromeManager.Instance._ManagerControler.CopyControl_Wheel(_xchrome.ExtensionsHwnd, _xx, _yy, args.Delta, true);
+                    return;
+                }
+                //Debug.WriteLine("yua:"+args.X + "," + args.Y);
+
                 //判断是否主控内
                 if (args.X < _main_left || args.X > _main_right || args.Y < _main_top || args.Y > _main_bottom) return;
                 //计算点击的相对位置
-                double xx = _isRatio ? ((args.X - _main_left) / _main_width) : (args.X - _main_left);
-                double yy = _isRatio ? ((args.Y - _main_top) / _main_height) : (args.Y - _main_top);
-                XChromeManager.CopyControl_Wheel(_main_xchrome_id, xx, yy, args.Delta);
+                int xx = args.X - _main_left;
+                int yy = args.Y - _main_top;
+                XChromeManager.Instance._ManagerControler.CopyControl_Wheel(_main_xchrome_id, xx, yy, args.Delta);
             }
 
             //输入char
@@ -93,8 +147,25 @@ namespace XChrome.cs
                 if (me.keyChar == null) return;
                 //判断是否主控内
                 var qwin = (IntPtr)Win32Helper.GetForegroundWindow();
-                if (qwin != _main_hwd) { return; }
-                XChromeManager.CopyControl_keyPress(_main_xchrome_id, me.keyChar.Value);
+                //主窗口
+                if(qwin==_main_hwd)
+                {
+                    XChromeManager.Instance._ManagerControler.CopyControl_keyPress(_main_xchrome_id, me.keyChar.Value);
+                    return;
+                }
+                //插件弹窗内
+                if (qwin == _xchrome.ExtensionsHwnd)
+                {
+                    if (_xchrome.ExtensionsHwnd == 0) return;
+                    //判断窗口是否存在
+                    var iswindow = Win32Helper.IsWindow((IntPtr)qwin);
+                    if (!iswindow) return;
+                    XChromeManager.Instance._ManagerControler.CopyControl_keyPress(qwin, me.keyChar.Value,true);
+                }
+
+
+                
+                
             }
 
             //特殊键
@@ -104,51 +175,113 @@ namespace XChrome.cs
                 var args = me.keyPressArgs;
                 //判断是否主控内
                 var qwin = (IntPtr)Win32Helper.GetForegroundWindow();
-                if (qwin != _main_hwd) { return; }
-                XChromeManager.CopyControl_keyDownOther(_main_xchrome_id, args.KeyCode);
+                //主窗口
+                if (qwin == _main_hwd)
+                {
+                    XChromeManager.Instance._ManagerControler.CopyControl_keyDownOther(_main_xchrome_id, args.KeyCode);
+                    return;
+                }
+                //插件弹窗内
+                if (qwin == _xchrome.ExtensionsHwnd)
+                {
+                    if (_xchrome.ExtensionsHwnd == 0) return;
+                    //判断窗口是否存在
+                    var iswindow = Win32Helper.IsWindow((IntPtr)qwin);
+                    if (!iswindow) return;
+                    XChromeManager.Instance._ManagerControler.CopyControl_keyDownOther(qwin, args.KeyCode,true);
+                }
+
+
+                
+                
             }
+
             //鼠标移动
             else if (me.type == 4)
             {
                 if (me.mouseEventArgs == null) return;
                 var args = me.mouseEventArgs;
+                //第一步，判断是否在插件内
+                var isInExs = IsInExtensions(args.X, args.Y);
+                if (isInExs.Item1)
+                {
+                    int _xx = args.X - isInExs.Item2.Value.Left;
+                    int _yy = args.Y - isInExs.Item2.Value.Top;
+
+                    XChromeManager.Instance._ManagerControler.CopyControl_MouseMove(_xchrome.ExtensionsHwnd, _xx, _yy,true);
+                    return;
+                }
+
                 if (args.X < _main_left || args.X > _main_right || args.Y < _main_top || args.Y > _main_bottom) return;
                 //计算点击的相对位置
-                double xx = _isRatio ? ((args.X - _main_left) / _main_width) : (args.X - _main_left);
-                double yy = _isRatio ? ((args.Y - _main_top) / _main_height) : (args.Y - _main_top);
+                int xx = args.X - _main_left;
+                int yy = args.Y - _main_top;
 
-                XChromeManager.CopyControl_MouseMove(_main_xchrome_id, xx, yy);
+                XChromeManager.Instance._ManagerControler.CopyControl_MouseMove(_main_xchrome_id, xx, yy);
             }
 
             //鼠标悬停
             else if (me.type == 5) {
-                double xx = _isRatio ? ((me.hoverX - _main_left) / _main_width) : (me.hoverX - _main_left);
-                double yy = _isRatio ? ((me.hoverY - _main_top) / _main_height) : (me.hoverY - _main_top);
 
-                XChromeManager.CopyControl_MouseHover(_main_xchrome_id, xx, yy);
+                //第一步，判断是否在插件内
+                var isInExs = IsInExtensions(me.hoverX, me.hoverY);
+                if (isInExs.Item1)
+                {
+                    int _xx = me.hoverX - isInExs.Item2.Value.Left;
+                    int _yy = me.hoverY - isInExs.Item2.Value.Top;
+                    XChromeManager.Instance._ManagerControler.CopyControl_MouseHover(_xchrome.ExtensionsHwnd, _xx, _yy,true);
+                    return;
+                }
+
+                int xx = me.hoverX - _main_left;
+                int yy = me.hoverY - _main_top;
+
+                XChromeManager.Instance._ManagerControler.CopyControl_MouseHover(_main_xchrome_id, xx, yy);
             }
 
             //鼠标谈起
             else if (me.type == 6) {
+                return;
                 if (me.mouseClickArgs == null) return;
                 var args = me.mouseClickArgs;
+
+                //第一步，判断是否在插件内
+                var isInExs = IsInExtensions(args.X, args.Y);
+                if (isInExs.Item1)
+                {
+                    int _xx = args.X - isInExs.Item2.Value.Left;
+                    int _yy = args.Y - isInExs.Item2.Value.Top;
+                    Win32Helper.LockSetForegroundWindow(1);
+                    if (args.Button == MouseButtons.Left)
+                    {
+                        XChromeManager.Instance._ManagerControler.CopyControl_ClickUp(_xchrome.ExtensionsHwnd, _xx, _yy, true);
+                    }
+                    else
+                    {
+                        XChromeManager.Instance._ManagerControler.CopyControl_ClickUp(_xchrome.ExtensionsHwnd, _xx, _yy, true, "Right");
+                    }
+                    Win32Helper.LockSetForegroundWindow(2);
+                    return;
+                }
+
 
                 //判断是否主控内
                 if (args.X < _main_left || args.X > _main_right || args.Y < _main_top || args.Y > _main_bottom) return;
                 //计算点击的相对位置
-                double xx = _isRatio ? ((args.X - _main_left) / _main_width) : (args.X - _main_left);
-                double yy = _isRatio ? ((args.Y - _main_top) / _main_height) : (args.Y - _main_top);
+                int xx = args.X - _main_left;
+                int yy = args.Y - _main_top;
 
+                Win32Helper. LockSetForegroundWindow(1);
                 //传递
                 if (args.Button == MouseButtons.Left)
                 {
-
-                    XChromeManager.CopyControl_ClickUp(_main_xchrome_id, xx, yy);
+                    XChromeManager.Instance._ManagerControler.CopyControl_ClickUp(_main_xchrome_id, xx, yy,false);
                 }
                 else
                 {
-                    XChromeManager.CopyControl_ClickUp(_main_xchrome_id, xx, yy, "Right");
+                    XChromeManager.Instance._ManagerControler.CopyControl_ClickUp(_main_xchrome_id, xx, yy,false, "Right");
                 }
+                Win32Helper.LockSetForegroundWindow(2);
                 return;
             }
         }
@@ -163,11 +296,9 @@ namespace XChrome.cs
 
             _main_xchrome_id=xchrome_id;
             //获得主控xchrome
-            var rXchrome = XChromeManager.GetRuningXchromes();
-            if (rXchrome == null) { return; }
-            if (!rXchrome.ContainsKey(xchrome_id)) { return; }
-            var xchrome = rXchrome[xchrome_id];
-
+            var xchrome = XChromeManager.Instance._ManagerCache.GetRuningXchromeById(xchrome_id);
+            if (xchrome == null) { return; }
+            _xchrome = xchrome;
             //获取主控位置
             IntPtr hwd = (IntPtr)xchrome.Hwnd;
             Win32Helper.GetWindowRect(hwd, out var rect);
@@ -179,6 +310,7 @@ namespace XChrome.cs
             _main_width = rect.Right - rect.Left;
             _main_height = rect.Bottom - rect.Top;
 
+          
             if (!_isRunning)
             {
                 _isRunning = true;
@@ -226,6 +358,12 @@ namespace XChrome.cs
         {
             return _isRunning;
         }
+    }
+
+
+    public class ControlTools
+    {
+        
     }
 
     /// <summary>
@@ -487,7 +625,7 @@ namespace XChrome.cs
 
             StringBuilder sb = new StringBuilder(2);
             int result =Win32Helper. ToUnicode(virtualKey, scanCode, keyboardState, sb, sb.Capacity, 0);
-            Debug.WriteLine("-----"+sb.ToString());
+            //Debug.WriteLine("-----"+sb.ToString());
             if (result == 1)
             {
                 // 如果得到的字符为控制字符（例如 Backspace 产生的 '\b'），则返回 null

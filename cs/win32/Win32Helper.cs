@@ -29,7 +29,11 @@ namespace XChrome.cs.win32
             public int Right;  // 右边缘坐标
             public int Bottom; // 底边缘坐标
         }
+        [DllImport("user32.dll")]
+        public static extern bool IsWindow(IntPtr hWnd);
 
+        [DllImport("user32.dll")]
+        public static extern bool IsWindowVisible(IntPtr hWnd);
         /// <summary>
         /// 找窗口
         /// </summary>
@@ -42,6 +46,10 @@ namespace XChrome.cs.win32
         // 在指定父窗口下查找子窗口句柄
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         public static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
+
+        // 引入 ClientToScreen 函数
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool ClientToScreen(IntPtr hWnd, ref POINT lpPoint);
 
         // 相关标志
         const uint SWP_NOZORDER = 0x0004;  // 不改变 Z 顺序
@@ -70,6 +78,13 @@ namespace XChrome.cs.win32
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr SendMessage(IntPtr hWnd,uint Msg, IntPtr wParam,IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        public static extern bool LockSetForegroundWindow(uint uLockCode);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
 
         // 定义 POINT 结构，用于获取坐标
         [StructLayout(LayoutKind.Sequential)]
@@ -109,6 +124,21 @@ namespace XChrome.cs.win32
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern int ToUnicode(uint wVirtKey, uint wScanCode, byte[] lpKeyState,
             [Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder pwszBuff, int cchBuff, uint wFlags);
+
+        // 定义回调委托
+        public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+        // 从 user32.dll 导入 EnumWindows 函数
+        [DllImport("user32.dll")]
+        private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+        //[DllImport("dwmapi.dll")]
+        //public static extern int DwmSetWindowAttribute(
+        //    IntPtr hwnd,
+        //    DWMWINDOWATTRIBUTE dwAttribute,
+        //    ref uint pvAttribute,
+        //    uint cbAttribute);
+
         /// <summary>
         /// 改变窗口位置大小
         /// </summary>
@@ -119,8 +149,87 @@ namespace XChrome.cs.win32
         /// <param name="h"></param>
         public static void ChangeWindowPos(IntPtr intptr, int x,int y ,int w,int h)
         {
-            SetWindowPos(intptr, IntPtr.Zero, x, y, w, h, SWP_NOZORDER | SWP_NOACTIVATE);
+            try
+            {
+                SetWindowPos(intptr, IntPtr.Zero, x, y, w, h, SWP_NOZORDER | SWP_NOACTIVATE);
+            }catch(Exception ev) { }
+           
+        }
+        public enum DWMWINDOWATTRIBUTE : uint
+        {
+            DWMWA_BORDER_COLOR = 34
+        }
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr ChildWindowFromPointEx(IntPtr hwndParent, POINT pt, uint flags);
+        [DllImport("user32.dll")]
+        public static extern bool ScreenToClient(IntPtr hWnd, ref POINT lpPoint);
+        [DllImport("user32.dll")]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        // 获取窗口的类名
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        public static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
+
+        // 导入 EnumChildWindows
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool EnumChildWindows(IntPtr hWndParent, EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+        // 获取窗口标题长度
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        public static extern int GetWindowTextLength(IntPtr hWnd);
+
+        // 获取窗口标题
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
+        public static List<IntPtr> GetAllWindowsByClass(string targetClassName)
+        {
+
+            // 初始 parent 为顶级窗口（IntPtr.Zero），并从第一个窗口开始查找（hwndChildAfter 为 IntPtr.Zero）
+            IntPtr hwndFound = IntPtr.Zero;
+            int count = 0;
+            List<IntPtr> list = new List<IntPtr>();
+            // 循环查找所有匹配的窗口
+            do
+            {
+                hwndFound = FindWindowEx(IntPtr.Zero, hwndFound, targetClassName, null);
+                if (hwndFound != IntPtr.Zero)
+                {
+                    count++;
+                    list.Add(hwndFound);
+                    //Console.WriteLine($"找到第 {count} 个窗口，句柄：{hwndFound}");
+                }
+            }
+            while (hwndFound != IntPtr.Zero);
+
+            //Console.WriteLine($"总共找到 {count} 个类名为 \"{targetClassName}\" 的窗口。");
+            //Console.ReadLine();
+            return list;
+        }
+
+        /// <summary>
+        /// 遍历指定父窗口的所有子窗口
+        /// </summary>
+        /// <param name="parent">父窗口句柄</param>
+        /// <returns>子窗口句柄列表</returns>
+        public static List<IntPtr> GetAllChildWindows(IntPtr parent)
+        {
+            List<IntPtr> childWindows = new List<IntPtr>();
+
+            // 定义回调委托，枚举到每个子窗口时将它加入列表中
+            EnumWindowsProc callback = (hWnd, lParam) =>
+            {
+                childWindows.Add(hWnd);
+                // 返回 true 以继续枚举
+                return true;
+            };
+
+            // 执行子窗口枚举
+            EnumChildWindows(parent, callback, IntPtr.Zero);
+            return childWindows;
         }
 
     }
+
 }

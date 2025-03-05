@@ -33,6 +33,7 @@ using System.Reflection;
 using XChrome.forms;
 using XChrome.cs;
 using AutoUpdaterDotNET;
+using XChrome.cs.xchrome;
 
 namespace XChrome
 {
@@ -157,7 +158,7 @@ namespace XChrome
             //关闭任务服务
             cs.JoberManager.Stop();
             //关闭 playwirght
-            await XChromeManager.DisposePlayWright();
+            await XChromeManager.Instance.DisposePlayWright();
             //关闭控制器
             cs.MouseHookServer.UnIni();
 

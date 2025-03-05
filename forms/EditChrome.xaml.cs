@@ -374,7 +374,7 @@ namespace XChrome.forms
 
             // 生成 Chrome 版本号的各个数字部分
             // major：Chrome 主版本号，范围设定在 90 到 115 之间
-            int major = rnd.Next(90, 116); // 随机范围 [90,115]
+            int major = rnd.Next(108, 120); // 随机范围 [90,115]
             // build：生成一个构建号，例如 4000 到 5999
             int build = rnd.Next(4000, 6000);
             // patch：生成一个补丁版本号，例如 10 到 149

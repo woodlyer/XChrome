@@ -36,6 +36,7 @@ using XChrome.cs;
 using XChrome.cs.db;
 using XChrome.cs.tools.YTools;
 using XChrome.cs.win32;
+using XChrome.cs.xchrome;
 
 
 namespace XChrome.pages
@@ -482,12 +483,13 @@ namespace XChrome.pages
             var db = MyDb.DB;
             var clist =await db.Queryable<Chrome>().Where(it => ilist.Contains(it.id)).ToListAsync();
             db.Close();
+            buttonStatus.Run = false;
             buttonStatus.Array = false;
             buttonStatus.Stop = false;
             buttonStatus.Control = false;
             //打开
             foreach (var it in clist) { 
-                cs.XChrome xc=new cs.XChrome();
+                XChromeClient xc =new XChromeClient();
                 xc.Id = it.id;
                 xc.Proxy = it.proxy;
                 xc.UserAgent = it.userAgent;
@@ -496,14 +498,16 @@ namespace XChrome.pages
                 xc.Name = it.name;
                 xc.Extensions = it.extensions;
                 await Task.Run(async () => {
-                    await XChromeManager.OpenChrome(xc);
+                    await XChromeManager.Instance.OpenChrome(xc);
                     //打开一个后，排列下
-                    
-                    await Task.Delay(100);
+                    await Task.Delay(300);
                 });
                 pl_btn_Click(null, null);
             }
-            await Task.Delay(500);
+            await Task.Run(async() =>
+            {
+                await Task.Delay(1000);
+            });
             pl_btn_Click(null, null);
             buttonStatus.Array = true;
             buttonStatus.Stop = true;
@@ -556,7 +560,7 @@ namespace XChrome.pages
         {
             var runlist = TableItems.Where(it => it.IsRunning).ToList();
             if (runlist.Count == 0) return;
-            await XChromeManager.CloseAllChrome();
+            await XChromeManager.Instance.CloseAllChrome();
             //关闭群控，如果启动的话
             ControlManager.CloseControl();
             //关闭hook
@@ -583,8 +587,8 @@ namespace XChrome.pages
             }
             await Task.Run(async () =>
             {
-                await XChromeManager.ArrayChromes(stype, width, height, licount, screen);
-                await XChromeManager.AdjustmentView();
+                await XChromeManager.Instance.ArrayChromes(stype, width, height, licount, screen);
+                await XChromeManager.Instance.AdjustmentView();
             });
             
 
@@ -601,10 +605,10 @@ namespace XChrome.pages
             forms.InputBox i = new forms.InputBox(this);
             List<ComboBoxItem> list = new List<ComboBoxItem>();
             list.Add(new ComboBoxItem() { Content = "--关闭群控--",Tag=0});
-            var runingxchrome = XChromeManager.GetRuningXchromes();
-            foreach(var id in runingxchrome.Keys)
+            var runingxchrome = XChromeManager.Instance._ManagerCache.GetRuningXchromesList();
+            foreach(var xchrome in runingxchrome)
             {
-                list.Add(new ComboBoxItem() { Content = "【" + id + "】" + runingxchrome[id].Name, Tag =id});
+                list.Add(new ComboBoxItem() { Content = "【" + xchrome.Id + "】" + xchrome.Name, Tag = xchrome .Id});
             }
 
 
@@ -658,35 +662,7 @@ namespace XChrome.pages
         private async void script_do_btn_Click(object sender, RoutedEventArgs e)
         {
             //测试按钮
-            //await XChromeManager.jober_AdjustmentView();
-            //XChromeManager._is_jober_AdjustmentView = true;
-            var keys=XChromeManager.GetRuningXchromes().Keys.ToArray();
-            var xchrome = XChromeManager.GetRuningXchromes()[keys[0]];
-
-
-            IntPtr hwd = (IntPtr)xchrome.Hwnd;
-
-            //总窗口
-            Win32Helper.GetWindowRect(hwd, out var ret);
-
-            var legacywindow_hwd = Win32Helper.FindWindowEx(hwd, IntPtr.Zero, "Chrome_RenderWidgetHostHWND", "Chrome Legacy Window");
-            if (legacywindow_hwd == IntPtr.Zero)
-            {
-                return;
-            }
-            Win32Helper.RECT clientRect = new Win32Helper.RECT();
-            Win32Helper.GetWindowRect(legacywindow_hwd, out clientRect);
-            int ww = clientRect.Right - clientRect.Left;
-            int hh = clientRect.Bottom - clientRect.Top;
-
-
-
-
-            await xchrome.BrowserContext.Pages[0].SetViewportSizeAsync(ww,hh);
-
-
-
-            Win32Helper.ChangeWindowPos(hwd, ret.Left,ret.Top,ret.Right-ret.Left,ret.Bottom-ret.Top);
+            
         }
     }
     public partial class TableItem: ObservableObject
