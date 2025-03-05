@@ -8,8 +8,8 @@
 > 暂只支持windows系统
 
 ## --简单视频教程？--
-点击查看视频：：[https://youtu.be/onD1OIQkdWM](https://youtu.be/onD1OIQkdWM)
-点击查看视频：（2025-03-05）：[https://www.youtube.com/watch?v=GVOz3VGF9Vs](https://www.youtube.com/watch?v=GVOz3VGF9Vs)
+>点击查看视频：：[https://youtu.be/onD1OIQkdWM](https://youtu.be/onD1OIQkdWM)  
+>点击查看视频：（2025-03-05）：[https://www.youtube.com/watch?v=GVOz3VGF9Vs](https://www.youtube.com/watch?v=GVOz3VGF9Vs)
 
 
 ## --安装插件？--
