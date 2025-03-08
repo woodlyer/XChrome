@@ -59,14 +59,14 @@ namespace XChrome.cs.xchrome
                 if (clickType == "Left")
                 {
                     Win32Helper.PostMessage(hwd, Win32Helper.WM_LBUTTONDOWN, wParam, lParam);
-                    Thread.Sleep(50);
-                    Win32Helper.PostMessage(hwd, Win32Helper.WM_LBUTTONUP, wParam, lParam);
+                    //Thread.Sleep(150);
+                    //Win32Helper.SendMessage(hwd, Win32Helper.WM_LBUTTONUP, wParam, lParam);
                 }
                 else
                 {
                     Win32Helper.PostMessage(hwd, Win32Helper.WM_RBUTTONDOWN, wParam, lParam);
-                    Thread.Sleep(50);
-                    Win32Helper.PostMessage(hwd, Win32Helper.WM_RBUTTONUP, wParam, lParam);
+                    //Thread.Sleep(150);
+                    //Win32Helper.SendMessage(hwd, Win32Helper.WM_RBUTTONUP, wParam, lParam);
                 }
 
 

@@ -2,11 +2,13 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using XChrome.cs.tools.socks5;
 using XChrome.cs.tools.YTools;
 using XChrome.cs.win32;
 using XChrome.pages;
@@ -40,7 +42,7 @@ namespace XChrome.cs.xchrome
         /// <param name="x"></param>
         /// <returns></returns>
         public async Task OpenChrome(XChromeClient x)
-        {
+        { 
             if (_ManagerCache.playwright == null)
             {
                 _ManagerCache.playwright = await Playwright.CreateAsync();
@@ -61,12 +63,13 @@ namespace XChrome.cs.xchrome
 
             //更新xchrome
             x.BrowserContext = context;
-            
+
 
 
 
             #region=====绑定事件=====
 
+            
             //当关闭时,需要通知主窗口
             context.Close += (sender, ibrowsercontext) =>
             {
@@ -75,7 +78,7 @@ namespace XChrome.cs.xchrome
             };
             CManager.notify_online(new List<long> { x.Id }, true);
 
-
+            
             //新建页面的时候，需要更新内部page大小
             context.Page += async (_, page) =>
             {
@@ -83,11 +86,11 @@ namespace XChrome.cs.xchrome
                 if (_ManagerCache.closeUrls.Contains(page.Url))
                 {
                     await page.CloseAsync();
+                    await ArrayChromes();
+                    await AdjustmentView();
                     return;
                 }
 
-                //await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
-                //Debug.WriteLine("新页面 URL: " + page.Url);
 
                 var v = x.ViewportSize;
                 if (v != null)
@@ -98,8 +101,30 @@ namespace XChrome.cs.xchrome
                     }
                     catch (Exception ee) { }
                 }
+
+
+
+                ////if (page.Url.StartsWith("https://chromewebstore.google.com/"))
+                ////{
+                //    page.Download += async (_, download) =>
+                //    {
+                //        Debug.WriteLine("检测到下载开始！"+ download.Url);
+
+                //        // 等待下载完成后获取临时文件路径
+                //        var tempPath = await download.PathAsync();
+                //        var temp2 = tempPath + ".zip";
+                //        System.IO.File.Copy(tempPath, temp2);
+                //        //Debug.WriteLine($"下载文件的临时路径：{tempPath}");
+
+                //        // 如需保存到自定义位置，可以使用 SaveAsAsync 方法
+                //        //string savePath = "./downloaded_file.ext"; // 根据文件类型更改扩展名
+                //       // await download.SaveAsAsync(savePath);
+                //        //Console.WriteLine($"下载文件已保存至: {savePath}");
+                //    };
+                ////}
             };
 
+            
 
 
             #endregion
@@ -153,7 +178,36 @@ namespace XChrome.cs.xchrome
                 _ManagerCache._is_jober_AdjustmentView = true;
                 cs.JoberManager.AddJob(_ManagerJober.jober_AdjustmentView);
                 cs.JoberManager.AddJob(_ManagerJober.jober_findExPopup);
+
+                _ = Task.Run(async () =>
+                {
+                    while (true)
+                    {
+                        if (cs.JoberManager._isStop) break;
+                        if (_ManagerCache.is_auto_array)
+                        {
+                            if (_ManagerCache.GetRuningXchromeCount() > 0)
+                            {
+                                await ArrayChromes();
+                                await AdjustmentView();
+                                await Task.Delay(2000);
+                            }
+                            else
+                            {
+                                await Task.Delay(2000);
+                            }
+                        }
+                        else
+                        {
+                            await Task.Delay(2000);
+                        }
+                    }
+                });
             }
+
+
+            
+
         }
 
 
@@ -235,6 +289,8 @@ namespace XChrome.cs.xchrome
             args.Add("--disable-blink-features=AutomationControlled");
             //args.Add("--window-position=-32000,-32000");
 
+            args.Add("-no-first-run");
+            args.Add("--no-default-browser-check");
 
             string chrome_exePath = "";
             if (cs.Config.chrome_path == "")
@@ -246,6 +302,22 @@ namespace XChrome.cs.xchrome
                 chrome_exePath = cs.Config.chrome_path;
             }
 
+            string _proxy = x.Proxy;
+            if (x.Proxy.StartsWith("socks5://"))
+            {
+                
+                var bb=Socks5Server.IsSocks5MustDo(x.Proxy,out var httpproxy);
+                if (bb)
+                {
+                    _proxy = httpproxy;
+                }
+                else
+                {
+                    cs.Loger.Err("socks5代理格式错误：" + x.Proxy);
+                    _proxy = "";
+                }
+            }
+
             //解读xchrome环境evns
             JObject evnJ = JObject.Parse(string.IsNullOrEmpty(x.Evns) ? "{}" : x.Evns);
             var options = new BrowserTypeLaunchPersistentContextOptions()
@@ -253,8 +325,11 @@ namespace XChrome.cs.xchrome
                 UserAgent = x.UserAgent,
                 ExecutablePath = chrome_exePath,
                 Headless = false,
-                Proxy = _ManagerTooler.getProxy(x.Proxy),
+                Proxy = _ManagerTooler.getProxy(_proxy),
                 Args = args,
+                //下载
+                //AcceptDownloads = true,
+                //DownloadsPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "chrome_data", x.Id.ToString(), "downloads"),
 
                 //Channel= "chrome",
                 Env = new Dictionary<string, string>
@@ -274,6 +349,10 @@ namespace XChrome.cs.xchrome
             {
                 options.TimezoneId = evnJ["TimezoneId"]?.ToString();
             }
+
+            //if(x.ViewportSize!=null)
+            //    options.ViewportSize = x.ViewportSize;
+
             if (evnJ["ViewportSize"] != null)
             {
                 options.ViewportSize = new ViewportSize
@@ -282,10 +361,10 @@ namespace XChrome.cs.xchrome
                     Height = Convert.ToInt32(evnJ["ViewportSize"]["height"].ToString())
                 };
             }
-            if (evnJ["DeviceScaleFactor"] != null)
-            {
-                options.DeviceScaleFactor = (float)Convert.ToDecimal(evnJ["DeviceScaleFactor"]?.ToString());
-            }
+            //if (evnJ["DeviceScaleFactor"] != null)
+            //{
+            //    options.DeviceScaleFactor = (float)Convert.ToDecimal(evnJ["DeviceScaleFactor"]?.ToString());
+            //}
             if (evnJ["IsMobile"] != null)
             {
                 options.IsMobile = evnJ["IsMobile"]?.ToString() == "1" ? true : false;
@@ -369,7 +448,9 @@ namespace XChrome.cs.xchrome
         /// <param name="screen"></param>
         /// <returns></returns>
         public async Task ArrayChromes(int type, string width, string height, string licount, int screenIndex)
-        { 
+        {
+            string temp = type + "---" + width + "---" + height + "---" + licount + "---" + screenIndex;
+            _ManagerCache.ArrayChromes_temp_data = temp;
             //获得屏幕
             Screen screen = Screen.AllScreens[screenIndex];
             //屏幕位置 workarea
@@ -455,6 +536,18 @@ namespace XChrome.cs.xchrome
 
         }
 
+        public async Task ArrayChromes()
+        {
+            string temp = _ManagerCache.ArrayChromes_temp_data;
+            if (temp == "") return;
+            string[] temps = temp.Split("---");
+            int type = temps[0].TryToInt32(0);
+            string width = temps[1];
+            string height = temps[2];
+            string licount = temps[3];
+            int screenIndex = temps[4].TryToInt32(0);
+            await ArrayChromes(type, width, height, licount, screenIndex);
+        }
 
         /// <summary>
         /// 手动 调整浏览器内部页面大小

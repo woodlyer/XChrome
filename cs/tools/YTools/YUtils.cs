@@ -93,8 +93,33 @@ namespace XChrome.cs.tools.YTools
         }
 
 
-        
+        public static string GetMD5(string input, bool isShort)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                // 将字符串转换为字节数组
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+                // 计算哈希
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
 
-        
+                // 构造32位的 MD5 字符串（每个字节2位十六进制）
+                StringBuilder sb = new StringBuilder();
+                foreach (byte b in hashBytes)
+                {
+                    sb.Append(b.ToString("x2"));
+                }
+                string fullHash = sb.ToString();
+
+                // 如果选择生成16位MD5，则取中间的16个字符（从索引8开始）
+                if (isShort && fullHash.Length == 32)
+                {
+                    return fullHash.Substring(8, 16);
+                }
+
+                return fullHash;
+            }
+        }
+
+
     }
 }

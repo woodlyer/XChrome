@@ -241,7 +241,7 @@ namespace XChrome.cs
 
             //鼠标谈起
             else if (me.type == 6) {
-                return;
+                //return;
                 if (me.mouseClickArgs == null) return;
                 var args = me.mouseClickArgs;
 
@@ -310,7 +310,11 @@ namespace XChrome.cs
             _main_width = rect.Right - rect.Left;
             _main_height = rect.Bottom - rect.Top;
 
-          
+
+            //uint DWMWA_BORDER_COLOR = 35;
+            //uint newBorderColor = 0x000000FF; // 红色（蓝色通道占低位，格式：0x00 BB GG RR）
+            //int hr = DwmSetWindowAttribute(hwd, DWMWA_BORDER_COLOR, ref newBorderColor, (uint)Marshal.SizeOf(typeof(uint)));
+
             if (!_isRunning)
             {
                 _isRunning = true;

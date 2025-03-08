@@ -132,12 +132,12 @@ namespace XChrome.cs.win32
         [DllImport("user32.dll")]
         private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
 
-        //[DllImport("dwmapi.dll")]
-        //public static extern int DwmSetWindowAttribute(
-        //    IntPtr hwnd,
-        //    DWMWINDOWATTRIBUTE dwAttribute,
-        //    ref uint pvAttribute,
-        //    uint cbAttribute);
+        [DllImport("dwmapi.dll")]
+        public static extern int DwmSetWindowAttribute(
+            IntPtr hwnd,
+            uint dwAttribute,
+            ref uint pvAttribute,
+            uint cbAttribute);
 
         /// <summary>
         /// 改变窗口位置大小

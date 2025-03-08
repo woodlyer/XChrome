@@ -16,6 +16,14 @@ namespace XChrome.cs
         private static int timeout = -1;
         public static async Task<(bool,string)> CheckAsync(ChecKUrl u,string proxy="")
         {
+
+            if (proxy.StartsWith("socks5://"))
+            {
+                string usname = "u" + cs.tools.YTools.YUtils.GetMD5(proxy, true);
+                proxy = "http://127.0.0.1:"+cs.Config.ProxySocks5Server_Port+":"+usname+":111";
+            }
+
+
             switch (u)
             {
                 case ChecKUrl.Ipip_net:

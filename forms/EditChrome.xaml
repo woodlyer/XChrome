@@ -7,143 +7,217 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="av"
     x:Class="XChrome.forms.EditChrome"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     Title="EditChrome"
     Width="777"
     Height="600"  
+    d:Height="1700"
     IconVisibility="Hidden"
     TitleVisibility="Hidden"
     ShrinkTitleBarWhenMaximized="False" Loaded="AdonisWindow_Loaded"                        
     PlaceTitleBarOverContent="True" WindowStartupLocation="CenterOwner">
     <!--600-->
-    <!-- 外层ScrollViewer用于约束高度并出现滚动条 -->
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,20,0,0" HorizontalScrollBarVisibility="Disabled">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="130"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="50"></RowDefinition>
-                <RowDefinition Height="50"></RowDefinition>
-                <RowDefinition Height="90"></RowDefinition>
-                <RowDefinition Height="50"></RowDefinition>
-                <RowDefinition Height="0"></RowDefinition>
-                <RowDefinition Height="90"></RowDefinition>
-                <RowDefinition Height="50"></RowDefinition>
-                <RowDefinition Height="170"></RowDefinition>
-                <RowDefinition Height="185"></RowDefinition>
-                <RowDefinition Height="90"></RowDefinition>
-            </Grid.RowDefinitions>
 
-            
-            
-            <Label Content="名称：" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" Grid.Column="0" Grid.Row="0"></Label>
-            <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
-                <TextBox x:Name="chromeName" x:FieldModifier="private" HorizontalAlignment="Left" Width="250" Height="30"></TextBox>
-                <TextBlock Text="ID:" x:Name="id_tip" Visibility="Hidden" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                <Border Background="#FF6BB2FF" x:Name="id_value" Visibility="Hidden" VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="5"  Padding="4" Margin="10,0,0,0">
-                    <TextBlock x:Name="chrome_id_text" Text="15" TextWrapping="Wrap"  Foreground="White" FontWeight="Bold"/>
-                </Border>
-            </StackPanel>
-            
+    <Grid>
+        <Border Height="590" d:Height="1700"  Width="770" BorderBrush="LightGray" Margin="0,10,0,0"  HorizontalAlignment="Center" VerticalAlignment="Top">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <Grid Margin="5" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Content="名称：" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" Grid.Column="0" Grid.Row="0"></Label>
+                        <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+                            <TextBox x:Name="chromeName" x:FieldModifier="private" HorizontalAlignment="Left" Width="250" Height="30"></TextBox>
+                            <TextBlock Text="ID:" x:Name="id_tip" Visibility="Hidden" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            <Border Background="#FF6BB2FF" x:Name="id_value" Visibility="Hidden" VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="5"  Padding="4" Margin="10,0,0,0">
+                                <TextBlock x:Name="chrome_id_text" Text="15" TextWrapping="Wrap"  Foreground="White" FontWeight="Bold"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
 
-            
-            <Label Content="User-Agent：" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" Grid.Column="0" Grid.Row="1"></Label>
-            <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
-                <TextBox x:Name="useragent_text" x:FieldModifier="private" HorizontalAlignment="Left" Width="450" Height="30" ></TextBox>
-                <Button x:Name="rand_useragent" x:FieldModifier="private" Click="rand_useragent_Click" HorizontalAlignment="Center" Height="30" Margin="5" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <iconPacks:PackIconFontAwesome Kind="ShuffleSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
-                        <TextBlock VerticalAlignment="Center" Text="随机生成"/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
+                    <Grid Margin="5" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Content="User-Agent：" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" Grid.Column="0" Grid.Row="0"></Label>
+                        <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
+                            <TextBox x:Name="useragent_text" x:FieldModifier="private" HorizontalAlignment="Left" Width="450" Height="30" ></TextBox>
+                            <Button x:Name="rand_useragent" x:FieldModifier="private" Click="rand_useragent_Click" HorizontalAlignment="Center" Height="30" Margin="5" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <iconPacks:PackIconFontAwesome Kind="ShuffleSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
+                                    <TextBlock VerticalAlignment="Center" Text="随机生成"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="5" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40" />
+                            <RowDefinition Height="40" />
+                            <RowDefinition Height="40" />
+                            <RowDefinition Height="0" />
+                        </Grid.RowDefinitions>
+                        <Label Content="其他环境：" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,10,0" FontSize="14" Grid.Column="0" Grid.Row="0"></Label>
+                        <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+                            <Button x:Name="rand_other_btn" x:FieldModifier="private" Click="rand_other_btn_Click"  HorizontalAlignment="Center" Height="30" Margin="0,5,0,0" VerticalAlignment="Top" Style="{DynamicResource {x:Static adonisUi:Styles.AccentButton}}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <iconPacks:PackIconFontAwesome Kind="ShuffleSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
+                                    <TextBlock VerticalAlignment="Center" Text="随机生成一条环境"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
+                            <ComboBox x:Name="sj_locales" x:FieldModifier="private" SelectedValuePath="Tag" Width="130" Height="30" SelectedIndex="0"></ComboBox>
+                            <ComboBox x:Name="sj_timezones" x:FieldModifier="private" SelectedValuePath="Tag" Width="130" Height="30" SelectedIndex="0"></ComboBox>
+                            <ComboBox x:Name="sj_fbl" x:FieldModifier="private" Width="130" SelectedValuePath="Tag" Height="30" SelectedIndex="0"></ComboBox>
+                            <ComboBox x:Name="sj_isPhone" x:FieldModifier="private" Width="100" SelectedValuePath="Tag" Height="30" SelectedIndex="0"></ComboBox>
+                            <ComboBox x:Name="sj_touch" x:FieldModifier="private" Width="100" SelectedValuePath="Tag" Height="30" SelectedIndex="0"></ComboBox>
+
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal">
+                            <TextBlock Text="纬度(-90到90)：" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox x:Name="sj_jw_w" Width="80" Height="30"></TextBox>
+                            <TextBlock Text="经度(-180到180)：" VerticalAlignment="Center" Margin="5,0,10,0"/>
+                            <TextBox x:Name="sj_jw_j" Width="100" Height="30"></TextBox>
+                            <ComboBox x:Name="sj_jw_city" x:FieldModifier="private" SelectionChanged="sj_jw_city_SelectionChanged" Width="100" Height="30" Margin="10,0,0,0" SelectedIndex="0"></ComboBox>
+                            <Button x:Name="sj_jw_city_wt" x:FieldModifier="private" Click="sj_jw_city_wt_Click"  HorizontalAlignment="Center" Height="30" Margin="5,5,0,0" VerticalAlignment="Top">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <iconPacks:PackIconFontAwesome Kind="FireSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
+                                    <TextBlock VerticalAlignment="Center" Text="微调位置"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal">
+                            <TextBox x:Name="othertxt" TextWrapping="Wrap" HorizontalAlignment="Left" AcceptsReturn="True" VerticalContentAlignment="Top" Width="300" Height="80"  Margin="0,0,0,5" ScrollViewer.VerticalScrollBarVisibility="Auto" ></TextBox>
+                        </StackPanel>
+                    </Grid>
+
+                   
+
+                    <Grid Margin="5" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Content="分组：" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" Grid.Column="0" Grid.Row="0"></Label>
+                        <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
+                            <ComboBox x:Name="groupList" x:FieldModifier="private" Width="150" Height="30" SelectedIndex="0">
+
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Content="备注：" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,10,0" FontSize="14" Grid.Column="0" Grid.Row="0"></Label>
+                        <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
+                            <TextBox x:Name="remark_text" HorizontalAlignment="Left" AcceptsReturn="True" VerticalContentAlignment="Top" Width="300" Height="80"  Margin="0,0,0,5" ></TextBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="5" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Content="代理：" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" Grid.Column="0" Grid.Row="0"></Label>
+                        <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+                            <TextBox x:Name="proxy_text" HorizontalAlignment="Left" Width="300" Height="30" ></TextBox>
+
+                            <ComboBox x:Name="proxy_check_type" x:FieldModifier="private" Width="100" Height="30" Margin="5,0,0,0" SelectedIndex="0">
+                                <ComboBoxItem Content="随机检测库"></ComboBoxItem>
+                            </ComboBox>
+
+                            <Button x:Name="check_proxy_btn" x:FieldModifier="private" Click="check_proxy_btn_Click" HorizontalAlignment="Center" Height="30" Margin="5" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <iconPacks:PackIconFontAwesome Kind="CheckDoubleSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
+                                    <TextBlock x:Name="check_proxy_btn_text" VerticalAlignment="Center" Text="测试代理"/>
+                                </StackPanel>
+                            </Button>
+
+                        </StackPanel>
+                    </Grid>
 
 
-            <Label Content="其他环境：" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,10,0" FontSize="14" Grid.Column="0" Grid.Row="2"></Label>
-            <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal">
-                <TextBox x:Name="othertxt" TextWrapping="Wrap" HorizontalAlignment="Left" AcceptsReturn="True" VerticalContentAlignment="Top" Width="300" Height="80"  Margin="0,0,0,5" ScrollViewer.VerticalScrollBarVisibility="Auto" ></TextBox>
-                <Button x:Name="rand_other_btn" x:FieldModifier="private" Click="rand_other_btn_Click"  HorizontalAlignment="Center" Height="30" Margin="5" VerticalAlignment="Top">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <iconPacks:PackIconFontAwesome Kind="ShuffleSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
-                        <TextBlock VerticalAlignment="Center" Text="随机生成"/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
+                    <Grid Margin="5" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Vertical">
+                            <TextBlock x:Name="check_proxy_result" x:FieldModifier="private" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" FontStyle="Italic" TextDecorations="Underline">-</TextBlock>
+                            <TextBlock HorizontalAlignment="Left"  Width="500" Height="130" LineHeight="20"  Margin="10,10,0,5" >
+                                支持以下填写格式，不带前缀统一用http：<LineBreak/>
+                                192.168.0.1:8000<LineBreak/>
+                                http://192.168.0.1:8000<LineBreak/>
+                                192.168.0.1:8000:代理账号:代理密码<LineBreak/>
+                                http://192.168.0.1:8000:代理账号:代理密码<LineBreak/>
+                                socks5://192.168.0.1:8000:代理账号:代理密码<LineBreak/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
 
 
-            <Label Content="分组：" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" Grid.Column="0" Grid.Row="3"></Label>
-            <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal">
-                <ComboBox x:Name="groupList" x:FieldModifier="private" Width="150" Height="30" SelectedIndex="0">
+                    <Grid Margin="5,0,0,0" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Content="插件：" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0" FontSize="14" Grid.Column="0" Grid.Row="0"></Label>
+                        <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical" VerticalAlignment="Top" Margin="0,10,0,0">
+                            <TextBox x:Name="exlist_text" HorizontalAlignment="Left" ScrollViewer.VerticalScrollBarVisibility="Visible" AcceptsReturn="True" VerticalContentAlignment="Top" Width="400" Height="80"  Margin="0,0,0,5" ></TextBox>
+                            <TextBlock LineHeight="20">
+                                插件ID，一行一个<LineBreak/>
+                                插件首先会在 <Run Foreground="Red">插件文件夹</Run> <Hyperlink Click="Hyperlink_Click" TextDecorations="Underline">点击打开文件夹</Hyperlink>寻找，
+                                <LineBreak/>
+                                如果没有找到，会在电脑系统默认chrome浏览器中寻找插件 <Hyperlink Click="Hyperlink_Click2" TextDecorations="Underline">点击系统浏览器插件文件夹</Hyperlink>
+                                <LineBreak/>
+                                所有环境可以共享插件目录，插件数据会自动隔离
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
+
                     
-                </ComboBox>
-            </StackPanel>
-
-           
-
-
-            <Label Content="备注：" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,10,0" FontSize="14" Grid.Column="0" Grid.Row="5"></Label>
-            <StackPanel Grid.Column="1" Grid.Row="5" Orientation="Horizontal">
-                <TextBox x:Name="remark_text" HorizontalAlignment="Left" AcceptsReturn="True" VerticalContentAlignment="Top" Width="300" Height="80"  Margin="0,0,0,5" ></TextBox>
-            </StackPanel>
-
-
-            <Label Content="代理：" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" Grid.Column="0" Grid.Row="6"></Label>
-            <StackPanel Grid.Column="1" Grid.Row="6" Orientation="Horizontal">
-                <TextBox x:Name="proxy_text" HorizontalAlignment="Left" Width="300" Height="30" ></TextBox>
-
-                <ComboBox x:Name="proxy_check_type" x:FieldModifier="private" Width="100" Height="30" Margin="5,0,0,0" SelectedIndex="0">
-                    <ComboBoxItem Content="随机检测库"></ComboBoxItem>
-                </ComboBox>
-
-                <Button x:Name="check_proxy_btn" x:FieldModifier="private" Click="check_proxy_btn_Click" HorizontalAlignment="Center" Height="30" Margin="5" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <iconPacks:PackIconFontAwesome Kind="CheckDoubleSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
-                        <TextBlock x:Name="check_proxy_btn_text" VerticalAlignment="Center" Text="测试代理"/>
-                    </StackPanel>
-                </Button>
-                
-            </StackPanel>
-            <StackPanel Grid.Column="1" Grid.Row="7" Orientation="Vertical">
-                <TextBlock x:Name="check_proxy_result" x:FieldModifier="private" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" FontStyle="Italic" TextDecorations="Underline">-</TextBlock>
-                <TextBlock HorizontalAlignment="Left"  Width="500" Height="140" LineHeight="20"  Margin="10,10,0,5" >
-                    支持以下填写格式：<LineBreak/>
-                    192.168.0.1:8000<LineBreak/>
-                    http://192.168.0.1:8000<LineBreak/>
-                    192.168.0.1:8000:代理账号:代理密码<LineBreak/>
-                    http://192.168.0.1:8000:代理账号:代理密码<LineBreak/>
-                    <Run Text="暂不支持 socks5协议" Foreground="Red"></Run>
+                    <Grid Margin="5" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+                            <Button Click="Button_Click" HorizontalAlignment="Center" Height="35" Width="100" Margin="5" VerticalAlignment="Center" Style="{DynamicResource {x:Static adonisUi:Styles.AccentButton}}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <iconPacks:PackIconFontAwesome Kind="CheckSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
+                                    <TextBlock x:Name="okbtntxt" x:FieldModifier="private" VerticalAlignment="Center" Text=" 确定 "/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
                     
-                </TextBlock>
-            </StackPanel>
+                    
+
+                </StackPanel>
+            </ScrollViewer>
+            
+            
+            
+        </Border>
+        
+    </Grid>
 
 
-            <Label Content="插件：" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0" FontSize="14" Grid.Column="0" Grid.Row="8"></Label>
-            <StackPanel Grid.Column="1" Grid.Row="8" Orientation="Vertical" VerticalAlignment="Top" Margin="0,10,0,0">
-                <TextBox x:Name="exlist_text" HorizontalAlignment="Left" ScrollViewer.VerticalScrollBarVisibility="Visible" AcceptsReturn="True" VerticalContentAlignment="Top" Width="400" Height="80"  Margin="0,0,0,5" ></TextBox>
-                <TextBlock LineHeight="20">
-                    插件ID，一行一个<LineBreak/>
-                    插件首先会在 <Run Foreground="Red">插件文件夹</Run> <Hyperlink Click="Hyperlink_Click" TextDecorations="Underline">点击打开文件夹</Hyperlink>寻找，
-                    <LineBreak/>
-                    如果没有找到，会在电脑系统默认chrome浏览器中寻找插件 <Hyperlink Click="Hyperlink_Click2" TextDecorations="Underline">点击系统浏览器插件文件夹</Hyperlink>
-                    <LineBreak/>
-                    所有环境可以共享插件目录，插件数据会自动隔离
-                </TextBlock>
-            </StackPanel>
-
-
-
-
-            <StackPanel Grid.Column="1" Grid.Row="9" Orientation="Horizontal">
-                <Button Click="Button_Click" HorizontalAlignment="Center" Height="35" Width="100" Margin="5" VerticalAlignment="Center" Style="{DynamicResource {x:Static adonisUi:Styles.AccentButton}}">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <iconPacks:PackIconFontAwesome Kind="CheckSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
-                        <TextBlock x:Name="okbtntxt" x:FieldModifier="private" VerticalAlignment="Center" Text=" 确定 "/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
-
-        </Grid>
-    </ScrollViewer>
+    
 
 </adonisControls:AdonisWindow>

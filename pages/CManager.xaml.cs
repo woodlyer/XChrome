@@ -12,6 +12,7 @@
 using AdonisUI.Controls;
 using AutoHotkey.Interop;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Playwright;
 using SqlSugar;
 using System;
 using System.Collections.Generic;
@@ -232,7 +233,8 @@ namespace XChrome.pages
 
             flushButtons();
 
-           
+            pl_zidong_check.IsChecked = true;
+            XChromeManager.Instance._ManagerCache.is_auto_array = true;
 
         }
 
@@ -487,6 +489,14 @@ namespace XChrome.pages
             buttonStatus.Array = false;
             buttonStatus.Stop = false;
             buttonStatus.Control = false;
+
+            //计算大小
+            int stype = pl_type_com.SelectedIndex;
+            string width = pl_width_text.Text.Trim();
+            string height = pl_height_text.Text.Trim();
+            int screen = screen_com.SelectedIndex;
+            string licount = pl_wcount_text.Text.Trim();
+            //var xchrome_wh= GetOneXChromeSize(stype, width, height, screen, licount, clist.Count);
             //打开
             foreach (var it in clist) { 
                 XChromeClient xc =new XChromeClient();
@@ -497,10 +507,11 @@ namespace XChrome.pages
                 xc.Evns=it.envs??"";
                 xc.Name = it.name;
                 xc.Extensions = it.extensions;
+                //xc.ViewportSize = new ViewportSize { Width = xchrome_wh.width, Height = xchrome_wh.height };
                 await Task.Run(async () => {
                     await XChromeManager.Instance.OpenChrome(xc);
                     //打开一个后，排列下
-                    await Task.Delay(300);
+                    //await Task.Delay(300);
                 });
                 pl_btn_Click(null, null);
             }
@@ -512,6 +523,9 @@ namespace XChrome.pages
             buttonStatus.Array = true;
             buttonStatus.Stop = true;
             buttonStatus.Control = true;
+
+
+           
         }
 
 
@@ -590,8 +604,17 @@ namespace XChrome.pages
                 await XChromeManager.Instance.ArrayChromes(stype, width, height, licount, screen);
                 await XChromeManager.Instance.AdjustmentView();
             });
-            
+        }
 
+        private (int width,int height) GetOneXChromeSize(int stype, string width, string height, int screen, string licount,int xchrome_count)
+        {
+            if (pl_custom_check.IsChecked == false)
+            {
+                width = "";
+                height = "";
+                licount = "";
+            }
+            return XChromeManager.Instance._ManagerTooler.Get_ArrayChromes_Size(stype, width, height, licount, screen, xchrome_count);
         }
 
         /// <summary>
@@ -663,6 +686,11 @@ namespace XChrome.pages
         {
             //测试按钮
             
+        }
+
+        private void pl_zidong_check_Click(object sender, RoutedEventArgs e)
+        {
+            XChromeManager.Instance._ManagerCache.is_auto_array = pl_zidong_check.IsChecked.Value;
         }
     }
     public partial class TableItem: ObservableObject

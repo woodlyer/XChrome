@@ -13,6 +13,11 @@ namespace XChrome.cs.xchrome
         private ManagerCache _ManagerCache;
         public ManagerJober(ManagerCache cache) { _ManagerCache = cache; }
 
+
+        /// <summary>
+        /// 定时检测内部页面大小调整
+        /// </summary>
+        /// <returns></returns>
         public async Task jober_AdjustmentView()
         {
             //Dictionary<long, XChromeClient> runing_xchrome=_ManagerCache.getru;

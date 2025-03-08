@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using XChrome.cs.tools.YTools;
 using XChrome.cs.win32;
 
 namespace XChrome.cs.xchrome
@@ -123,5 +125,59 @@ namespace XChrome.cs.xchrome
                 return null;
             }
         }
+
+
+        public (int wdith,int height) Get_ArrayChromes_Size(int type, string width, string height, string licount, int screenIndex,int xchrome_count)
+        {
+            
+            //获得屏幕
+            Screen screen = Screen.AllScreens[screenIndex];
+            //屏幕位置 workarea
+            var workarea = screen.WorkingArea;
+            //自定义
+            bool isCustom = (width != "" && height != "" && licount != "");
+            if (isCustom) { type = 0; }
+
+            //平铺
+            if (type == 0)
+            {
+                //长宽不填，表示默认
+                if (!isCustom)
+                {
+                    int _screen_width = screen.Bounds.Width;
+                    int _screen_height = screen.Bounds.Height;
+                    int startTop = workarea.Top;
+                    int startLeft = workarea.Left;
+
+                    var windowlist = ComputeAdaptiveWindowPositions(_screen_width, _screen_height, xchrome_count);
+                    
+                    if (windowlist.Count > 0)
+                    {
+                        return (windowlist[0].Width, windowlist[0].Height);
+                    }
+                    
+                }
+                //自定义填写
+                else
+                {
+                    int _width = width.TryToInt32(100);
+                    int _height = height.TryToInt32(100);
+                    return (_width, _height);
+
+                }
+            }
+            //重叠排序
+            else
+            {
+                var idslist = _ManagerCache.GetRuningXchrome_idlist();
+                int current_left = workarea.Left;
+                int _width = workarea.Width - idslist.Count * 30;
+                int _height = workarea.Height - 20;
+                return (_width, _height);
+            }
+
+            return (0, 0);
+        }
+
     }
 }

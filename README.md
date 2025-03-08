@@ -4,7 +4,7 @@
 ![image](https://github.com/chanawudi/XChrome/blob/master/screenshot/2.png?raw=true)
 
 ## --特点？--
-> 免费，开源，支持独立代理（无需插件），支持模拟各种操作系统，各chrome版本等指纹信息，支持群控一带多，支持脚本运行（开发中）
+> 免费，开源，支持独立代理,支持socks5代理（无需插件），支持模拟各种操作系统，各chrome版本等指纹信息，支持群控一带多，支持脚本运行（开发中）
 > 暂只支持windows系统
 
 ## --简单视频教程？--

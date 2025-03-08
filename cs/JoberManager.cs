@@ -19,7 +19,7 @@ namespace XChrome.cs
 {
     public class JoberManager
     {
-        private static bool _isStop=false;
+        public static bool _isStop=false;
         private static List<Func<Task>> joblist= new List<Func<Task>>();
         private static object _lock = new object();
 

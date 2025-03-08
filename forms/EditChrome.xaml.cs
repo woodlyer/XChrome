@@ -9,11 +9,15 @@
 // --------------------------------------------------------------------------------
 */
 #endregion
+using Microsoft.Playwright;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -26,6 +30,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using XChrome.cs;
 using XChrome.cs.db;
+using XChrome.cs.tools.socks5;
 using XChrome.cs.tools.YTools;
 
 namespace XChrome.forms
@@ -78,7 +83,129 @@ namespace XChrome.forms
             {
                 proxy_check_type.Items.Add(new ComboBoxItem() { Content = cu });
             }
-            //
+
+
+            //sj_locales
+            sj_locales.Items.Add(new ComboBoxItem() { Content = "[语言]" });
+            var locales = cs.EnvironmentManager.Get_locales();
+            foreach (var locale in locales) {
+                sj_locales.Items.Add(new ComboBoxItem() { Content=locale.Value+","+locale.Key,Tag=locale.Key});
+            }
+
+            //var timezones = new[] { "Asia/Shanghai", "America/New_York", "Europe/London", "Asia/Tokyo", "Europe/Berlin" };
+            //sj_timezones
+            sj_timezones.Items.Add(new ComboBoxItem() { Content = "[时区]" });
+            foreach (var cu in cs.EnvironmentManager.Get_timezones())
+            {
+                sj_timezones.Items.Add(new ComboBoxItem() { Content = cu.Value+","+ cu.Key, Tag = cu.Key });
+            }
+
+           
+            sj_fbl.Items.Add(new ComboBoxItem() { Content = "[分辨率]" });
+            foreach(var fb in cs.EnvironmentManager.Get_resolution())
+            {
+                sj_fbl.Items.Add(new ComboBoxItem() { Content = fb.Key,Tag=fb.Key });
+            }
+
+
+
+            sj_isPhone.Items.Add(new ComboBoxItem() { Content = "[是否手机]" });
+            sj_isPhone.Items.Add(new ComboBoxItem() { Content = "否", Tag = "false" });
+            sj_isPhone.Items.Add(new ComboBoxItem() { Content = "是",Tag="true" });
+            
+
+            sj_touch.Items.Add(new ComboBoxItem() { Content = "[是否触摸]" });
+            sj_touch.Items.Add(new ComboBoxItem() { Content = "否", Tag = "false" });
+            sj_touch.Items.Add(new ComboBoxItem() { Content = "是" ,Tag="true"});
+            
+
+
+            sj_jw_city.Items.Add(new ComboBoxItem() { Content = "[按城市位置]" });
+            foreach (var cu in cs.EnvironmentManager.Get_locations())
+            {
+                sj_jw_city.Items.Add(cu);
+            }
+
+        }
+
+        /// <summary>
+        /// 把环境js体现出来
+        /// </summary>
+        /// <returns></returns>
+        private async Task Evn_show(string jsobject)
+        {
+            JObject? je = Newtonsoft.Json.JsonConvert.DeserializeObject(jsobject) as JObject;
+            if (je == null) return;
+            foreach (var item in je)
+            {
+                string key = item.Key;
+                string value = item.Value.ToString();
+                switch (key)
+                {
+                    case "Locale":
+                        sj_locales.SelectedValue = value;
+                        break;
+                    case "TimezoneId":
+                        sj_timezones.SelectedValue = value;
+                        break;
+                    case "ViewportSize":
+                        sj_fbl.SelectedValue = item.Value["width"] + "x" + item.Value["height"];
+                        break;
+                    case "IsMobile":
+                        sj_isPhone.SelectedValue = value.ToLower();
+                        break;
+                    case "HasTouch":
+                        sj_touch.SelectedValue = value.ToLower();
+                        break;
+                    case "ExtraHTTPHeaders":
+                        break;
+                    case "Geolocation":
+                        //string[] ss2 = value.Split(',');
+                        sj_jw_w.Text = item.Value["Latitude"]?.ToString() ?? "";
+                        sj_jw_j.Text = item.Value["Longitude"]?.ToString() ?? "";
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 把界面的环境保持到js
+        /// </summary>
+        /// <returns></returns>
+        private async Task<string> Evn_tojs()
+        {
+
+
+            var environments = new Dictionary<string, object>();
+
+            environments["Locale"] = sj_locales.SelectedValue?? "zh-CN";
+            environments["TimezoneId"] = sj_timezones.SelectedValue?? "Asia/Shanghai";
+
+            var fbl=(sj_fbl.SelectedValue?.ToString()?? "1024x768").Split('x');
+            environments["ViewportSize"] = new Dictionary<string, int>
+            {
+                { "width", Convert.ToInt32(fbl[0]) },
+                { "height", Convert.ToInt32(fbl[1]) }
+            }; 
+
+            environments["IsMobile"] =Convert.ToBoolean(sj_isPhone.SelectedValue?.ToString()??"false");
+            environments["HasTouch"] = Convert.ToBoolean(sj_touch.SelectedValue?.ToString()??"false");
+
+            string acceptLanguage = EnvironmentManager.GetAcceptLanguageFromLocales(sj_locales.SelectedValue?.ToString()?? "zh-CN");
+            var extraHTTPHeaders = new Dictionary<string, string>
+            {
+                { "Accept-Language", acceptLanguage }
+            };
+            environments["ExtraHTTPHeaders"] = extraHTTPHeaders;
+
+            environments["Geolocation"] = new Dictionary<string, double>
+            {
+                { "Latitude", Convert.ToDouble(sj_jw_w.Text.Trim().TryToDecimal(39.5678m)) },
+                { "Longitude", Convert.ToDouble(sj_jw_j.Text.Trim().TryToDecimal(116.1234m))  }
+            }; 
+
+
+            return JObject.FromObject(environments).ToString();
         }
 
         /// <summary>
@@ -108,6 +235,10 @@ namespace XChrome.forms
             long groupid = o.groupId.Value;
             var group=groupList.Items.OfType<Group>().FirstOrDefault(it=>it.id == groupid);
             if(group != null)groupList.SelectedItem = group;
+
+            //其他指纹
+            string envs = o.envs ?? "{}";
+            await Evn_show(envs);
         }
 
 
@@ -136,6 +267,9 @@ namespace XChrome.forms
 
         }
 
+
+        
+
         /// <summary>
         /// 测试代理
         /// </summary>
@@ -162,15 +296,26 @@ namespace XChrome.forms
 
 
             string proxy = proxy_text.Text;
-            if (proxy.StartsWith("[") || proxy.StartsWith("socks5"))
+            if (proxy.StartsWith("["))
             {
                 MainWindow.Toast_Error("暂不支持该协议..");
                 return;
             }
+
+
+            if (proxy.StartsWith("socks5"))
+            {
+                var bb =Socks5Server.IsSocks5MustDo(proxy,out string httpproxy);
+                if (!bb) {
+                    MainWindow.Toast_Error("socks5格式不对，正确的应该是：socks5://ip:端口:用户名:密码");
+                    return;
+                }
+            }
+
             proxy = proxy.Replace("：",":");
             check_proxy_btn.IsEnabled = false;
             check_proxy_btn_text.Text = "测试中....";
-
+            check_proxy_result.Text = "等待结果..";
 
             var xx= await IpChecker.CheckAsync(cku, proxy);
             if (xx.Item1 == false)
@@ -192,8 +337,10 @@ namespace XChrome.forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_Click(object sender, RoutedEventArgs e)
         {
+            string jsevn= await Evn_tojs();
+            othertxt.Text = jsevn;
             string name= chromeName.Text.Trim();
             string agent= useragent_text.Text.Trim();
             long groupId = groupList.SelectedItem==null?1:( groupList.SelectedItem as Group).id;
@@ -247,11 +394,12 @@ namespace XChrome.forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void rand_other_btn_Click(object sender, RoutedEventArgs e)
+        private async void rand_other_btn_Click(object sender, RoutedEventArgs e)
         {
             var x = GenerateRandomEnvironment();
             string y=Newtonsoft.Json.JsonConvert.SerializeObject(x);
             othertxt.Text = y;
+            await Evn_show(y);
         }
 
         /// <summary>
@@ -267,25 +415,24 @@ namespace XChrome.forms
            
 
             // 2. 随机区域语言 Locale
-            var locales = new[] { "zh-CN", "en-US", "fr-FR", "de-DE", "ja-JP", "es-ES" };
-            var locale = locales[random.Next(locales.Length)];
+            var locales = EnvironmentManager.Get_locales();
+            var locale = locales.Keys.ToList()[random.Next(locales.Keys.Count)];
+            
 
             // 3. 随机时区 TimezoneId
-            var timezones = new[] { "Asia/Shanghai", "America/New_York", "Europe/London", "Asia/Tokyo", "Europe/Berlin" };
-            var timezoneId = timezones[random.Next(timezones.Length)];
+            var timezones = EnvironmentManager.Get_timezones();
+            var timezoneId = timezones.Keys.ToList()[random.Next(timezones.Count)];
 
             // 4. 随机视口尺寸（宽度：800-1920, 高度：600-1080）
-            int width = random.Next(800, 1921);
-            int height = random.Next(600, 1081);
+            var fbl = EnvironmentManager.Get_resolution();
+            var fb = fbl[fbl.Keys.ToList()[random.Next(fbl.Count)]];
+            var fbll = fb.Split('x');
             var viewport = new Dictionary<string, int>
             {
-                { "width", width },
-                { "height", height }
+                { "width", Convert.ToInt32(fbll[0]) },
+                { "height", Convert.ToInt32(fbll[1]) }
             };
 
-            // 5. 随机设备像素比例 DeviceScaleFactor（常见值：1.0, 1.25, 1.5, 2.0）
-            var scaleFactors = new double[] { 1.0, 1.25, 1.5, 2.0 };
-            var deviceScaleFactor = scaleFactors[random.Next(scaleFactors.Length)];
 
             // 6. 随机是否为移动设备 isMobile 和是否支持触摸 hasTouch
             bool isMobile = random.Next(2) == 0; // 50% 概率
@@ -293,58 +440,28 @@ namespace XChrome.forms
             bool hasTouch = isMobile || (random.Next(2) == 0);
 
             // 7. 根据 Locale 随机生成 Accept-Language HTTP header
-            string acceptLanguage;
-            switch (locale)
-            {
-                case "zh-CN":
-                    acceptLanguage = "zh-CN,zh;q=0.9,en;q=0.8";
-                    break;
-                case "en-US":
-                    acceptLanguage = "en-US,en;q=0.9";
-                    break;
-                case "fr-FR":
-                    acceptLanguage = "fr-FR,fr;q=0.9,en;q=0.8";
-                    break;
-                case "de-DE":
-                    acceptLanguage = "de-DE,de;q=0.9,en;q=0.8";
-                    break;
-                case "ja-JP":
-                    acceptLanguage = "ja-JP,ja;q=0.9,en;q=0.8";
-                    break;
-                case "es-ES":
-                    acceptLanguage = "es-ES,es;q=0.9,en;q=0.8";
-                    break;
-                default:
-                    acceptLanguage = locale;
-                    break;
-            }
+            string acceptLanguage=EnvironmentManager.GetAcceptLanguageFromLocales(locale);
             var extraHTTPHeaders = new Dictionary<string, string>
             {
                 { "Accept-Language", acceptLanguage }
             };
 
             // 8. 随机地理位置（使用一组常见城市的坐标）
-            var geolocations = new (double latitude, double longitude)[]
-            {
-            (31.2304, 121.4737),  // 上海
-            (40.7128, -74.0060),  // 纽约
-            (51.5074, -0.1278),   // 伦敦
-            (35.6895, 139.6917),  // 东京
-            (48.8566, 2.3522),    // 巴黎
-            (52.5200, 13.4050)    // 柏林
-            };
-            var geo = geolocations[random.Next(geolocations.Length)];
+
+            var geolocations = EnvironmentManager.Get_locations();
+            var geo = geolocations.Keys.ToList()[random.Next(geolocations.Count)];
+            var geos = geo.Split(",");
             var geolocation = new Dictionary<string, double>
             {
-                { "Latitude", geo.latitude },
-                { "Longitude", geo.longitude }
+                { "Latitude", Convert.ToDouble(geos[0]) },
+                { "Longitude", Convert.ToDouble(geos[1])  }
             };
 
             // 将所有配置参数放入字典
             environments["Locale"] = locale;
             environments["TimezoneId"] = timezoneId;
             environments["ViewportSize"] = viewport;
-            environments["DeviceScaleFactor"] = deviceScaleFactor;
+            //environments["DeviceScaleFactor"] = deviceScaleFactor;
             environments["IsMobile"] = isMobile;
             environments["HasTouch"] = hasTouch;
             environments["ExtraHTTPHeaders"] = extraHTTPHeaders;
@@ -422,6 +539,39 @@ namespace XChrome.forms
                 UseShellExecute = true
             });
         }
-        
+
+
+
+        private void sj_jw_city_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox combo = sender as ComboBox;
+            if (combo.SelectedItem == null) return;
+            if (combo.SelectedIndex == 0) return;
+            string ss = combo.SelectedItem.ToString();
+
+            ss = ss.Replace("[","").Replace("]","");
+            string[] s = ss.Split(",");
+            sj_jw_w.Text = s[0];
+            sj_jw_j.Text = s[1];
+        }
+
+        private void sj_jw_city_wt_Click(object sender, RoutedEventArgs e)
+        {
+            string w=sj_jw_w.Text.Trim();
+            string j = sj_jw_j.Text.Trim();
+            if (w == "" || j == "") return;
+
+            Random rand = new Random();
+            double offset = rand.NextDouble() * 10.0 - 5.0;
+            double w2 = Convert.ToDouble(w) + offset;
+            rand = new Random();
+            double offset2 = rand.NextDouble() * 10.0 - 5.0;
+            double j2 = Convert.ToDouble(j) + offset;
+            sj_jw_w.Text = w2.ToString("f4");
+            sj_jw_j.Text = j2.ToString("f4");
+        }
     }
+
+
+
 }

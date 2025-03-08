@@ -45,6 +45,7 @@ namespace XChrome
         private bool _Dark=false;
         private Notifier notifier = null;
         private static MainWindow _mainWindow = null;
+        private CancellationTokenSource cts = new CancellationTokenSource();
         public MainWindow()
         {
             InitializeComponent();
@@ -107,9 +108,11 @@ namespace XChrome
         /// <returns></returns>
         private async Task<bool> WenLoaded()
         {
+            bool IsDebug = false;
 #if DEBUG
-
+            IsDebug = true;
 #else
+            IsDebug=false;
             //登陆码
             Login login=new Login();
             login.Owner = this;
@@ -119,13 +122,17 @@ namespace XChrome
             }
 #endif
 
-            if(!await cs.Test.TestAndGoAsync()) {
+            if (!await cs.Test.TestAndGoAsync()) {
                 return false;
             }
 
             //检测更新
             AutoUpdater.SetOwner(this);
             AutoUpdater.Start("https://down.web3tool.vip/xchrome/xchrome_update.xml");
+
+            
+            
+            
 
             Func<Task> load = async () => {
                 //初始化日志
@@ -138,8 +145,9 @@ namespace XChrome
                 await cs.Config.ini();
                 //启动jobermanager
                 cs.JoberManager.Start();
-                
-                
+                //启动socks5
+                if(!IsDebug)
+                    cs.tools.socks5.Socks5Server.Start(cts.Token);
 
                 await Task.Delay(500);
             };
@@ -155,12 +163,15 @@ namespace XChrome
         /// <returns></returns>
         private async Task WenCloseing()
         {
+            cts.Cancel();
             //关闭任务服务
             cs.JoberManager.Stop();
             //关闭 playwirght
             await XChromeManager.Instance.DisposePlayWright();
             //关闭控制器
             cs.MouseHookServer.UnIni();
+            //
+            cs.tools.socks5.Socks5Server.Stop();
 
             _mainWindow = null;
         }

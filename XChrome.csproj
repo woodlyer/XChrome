@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <AssemblyVersion>1.5</AssemblyVersion>
-    <FileVersion>1.5</FileVersion>
+    <AssemblyVersion>1.7</AssemblyVersion>
+    <FileVersion>1.7</FileVersion>
     <ApplicationIcon>xchrome.ico</ApplicationIcon>
     <Copyright>瑞雪社区--刹那</Copyright>
     <LangVersion>preview</LangVersion>
@@ -51,7 +51,9 @@
     <PackageReference Include="MahApps.Metro.IconPacks" Version="5.1.0" />
     <PackageReference Include="Microsoft.Playwright" Version="1.44.0" />
     <PackageReference Include="MouseKeyHook" Version="5.7.1" />
+    <PackageReference Include="Pipelines.Sockets.Unofficial" Version="2.2.8" />
     <PackageReference Include="SqlSugarCore" Version="5.1.4.178" />
+    <PackageReference Include="System.IO.Pipelines" Version="10.0.0-preview.1.25080.5" />
     <PackageReference Include="System.Management" Version="9.0.2" />
     <PackageReference Include="ToastNotifications" Version="2.5.1" />
     <PackageReference Include="ToastNotifications.Messages" Version="2.5.1" />
