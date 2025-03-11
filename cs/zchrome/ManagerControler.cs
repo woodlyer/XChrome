@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,14 +7,12 @@ using System.Windows.Forms;
 using XChrome.cs.win32;
 using static XChrome.cs.win32.Win32Helper;
 
-namespace XChrome.cs.xchrome
+namespace XChrome.cs.zchrome
 {
-    public class ManagerControler_del
+    public class ManagerControler
     {
-
-
-        private ManagerCache_del _ManagerCache;
-        public ManagerControler_del(ManagerCache_del cache) { _ManagerCache = cache; }
+        private ManagerCache _ManagerCache;
+        public ManagerControler(ManagerCache cache) { _ManagerCache = cache; }
         /// <summary>
         /// 群控复制操作方法，已经是task内无需异步
         /// 鼠标点击
@@ -23,7 +20,7 @@ namespace XChrome.cs.xchrome
         /// <param name="except_id"></param>
         /// <param name="xRatio">相对主控的位置比例</param>
         /// <param name="yRatio"></param>
-        public void CopyControl_Click(long except_id, int x, int y, bool isExtension=false, string clickType = "Left")
+        public void CopyControl_Click(long except_id, int x, int y, bool isExtension = false, string clickType = "Left")
         {
             var idslist = _ManagerCache.GetRuningXchrome_idlist();
             foreach (var id in idslist)
@@ -32,7 +29,7 @@ namespace XChrome.cs.xchrome
                 var xchrome = _ManagerCache.GetRuningXchromeById(id);
                 if (xchrome == null) continue;
 
-                IntPtr hwd=IntPtr.Zero;
+                IntPtr hwd = IntPtr.Zero;
                 if (isExtension)
                 {
                     hwd = (IntPtr)xchrome.ExtensionsHwnd;
@@ -49,7 +46,7 @@ namespace XChrome.cs.xchrome
                 if (!Win32Helper.IsWindow(hwd)) continue;
 
                 //Debug.WriteLine("hwd:" + (long)hwd);
-               // Debug.WriteLine("点击2222：" + x + "," + y);
+                // Debug.WriteLine("点击2222：" + x + "," + y);
 
                 // 构造 lParam 参数：低 16 位为 x 坐标，高 16 位为 y 坐标
                 IntPtr lParam = new IntPtr((y << 16) | (x & 0xFFFF));
@@ -95,7 +92,7 @@ namespace XChrome.cs.xchrome
                 }
                 if (except_id == hwd) continue;
                 if (!Win32Helper.IsWindow(hwd)) continue;
-                
+
 
                 // 构造 lParam 参数：低 16 位为 x 坐标，高 16 位为 y 坐标
                 IntPtr lParam = new IntPtr((y << 16) | (x & 0xFFFF));
@@ -182,7 +179,7 @@ namespace XChrome.cs.xchrome
             }
         }
 
-        public void CopyControl_keyPress(long except_id, char _char,bool isExtension=false)
+        public void CopyControl_keyPress(long except_id, char _char, bool isExtension = false)
         {
             var idslist = _ManagerCache.GetRuningXchrome_idlist();
             foreach (var id in idslist)
@@ -214,7 +211,7 @@ namespace XChrome.cs.xchrome
 
         }
 
-        public void CopyControl_keyDownOther(long except_id, Keys key,bool isExtension=false)
+        public void CopyControl_keyDownOther(long except_id, Keys key, bool isExtension = false)
         {
             var idslist = _ManagerCache.GetRuningXchrome_idlist();
             foreach (var id in idslist)
@@ -294,7 +291,7 @@ namespace XChrome.cs.xchrome
                 if (!Win32Helper.IsWindow(hwd)) continue;
 
 
-                
+
                 //Debug.WriteLine(xRatio+","+yRatio);
                 int lParam = (y | (x & 0xFFFF));
                 Win32Helper.PostMessage(hwd, 0x02A1, IntPtr.Zero, new IntPtr(lParam));

@@ -104,6 +104,9 @@ namespace XChrome.cs.db
         /// </summary>
         public System.String extensions { get { return this._extensions; } set { this._extensions = value; } }
 
+        private System.String _datapath = "";
+        public System.String datapath { get { return this._datapath; } set { this._datapath = value; } }
+
         //
     }
 }

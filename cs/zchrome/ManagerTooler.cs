@@ -7,14 +7,15 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using XChrome.cs.tools.YTools;
 using XChrome.cs.win32;
-using XChrome.cs.zchrome;
+using XChrome.cs.xchrome;
 
-namespace XChrome.cs.xchrome
+namespace XChrome.cs.zchrome
 {
-    public class ManagerTooler_del
+    public class ManagerTooler
     {
-        private ManagerCache_del _ManagerCache;
-        public ManagerTooler_del(ManagerCache_del cache) { _ManagerCache = cache; }
+
+        private ManagerCache _ManagerCache;
+        public ManagerTooler(ManagerCache cache) { _ManagerCache = cache; }
 
         /// <summary>
         /// 计算位置分布
@@ -71,27 +72,27 @@ namespace XChrome.cs.xchrome
         /// </summary>
         /// <param name="xchrome"></param>
         /// <returns></returns>
-        public async Task AdjustmentOneView(XChromeClient xchrome)
-        {
-            IntPtr hwd = (IntPtr)xchrome.Hwnd;
-            //总窗口
-            Win32Helper.GetWindowRect(hwd, out var ret);
-            //内容窗口
-            var legacywindow_hwd = Win32Helper.FindWindowEx(hwd, IntPtr.Zero, "Chrome_RenderWidgetHostHWND", "Chrome Legacy Window");
-            Win32Helper.RECT clientRect = new Win32Helper.RECT();
-            Win32Helper.GetWindowRect(legacywindow_hwd, out clientRect);
-            int ww = clientRect.Right - clientRect.Left;
-            int hh = clientRect.Bottom - clientRect.Top;
-            //Debug.WriteLine(ww+",,"+hh);
-            xchrome.ViewportSize = new ViewportSize { Width = ww, Height = hh };
-            foreach (var page in xchrome.BrowserContext.Pages)
-            {
-                await page.SetViewportSizeAsync(ww, hh);
-            }
-            //chrome的一个bug，修复
-            Win32Helper.ChangeWindowPos(hwd, ret.Left, ret.Top, ret.Right - ret.Left, ret.Bottom - ret.Top);
+        //public async Task AdjustmentOneView(XChromeClient xchrome)
+        //{
+        //    IntPtr hwd = (IntPtr)xchrome.Hwnd;
+        //    //总窗口
+        //    Win32Helper.GetWindowRect(hwd, out var ret);
+        //    //内容窗口
+        //    var legacywindow_hwd = Win32Helper.FindWindowEx(hwd, IntPtr.Zero, "Chrome_RenderWidgetHostHWND", "Chrome Legacy Window");
+        //    Win32Helper.RECT clientRect = new Win32Helper.RECT();
+        //    Win32Helper.GetWindowRect(legacywindow_hwd, out clientRect);
+        //    int ww = clientRect.Right - clientRect.Left;
+        //    int hh = clientRect.Bottom - clientRect.Top;
+        //    //Debug.WriteLine(ww+",,"+hh);
+        //    xchrome.ViewportSize = new ViewportSize { Width = ww, Height = hh };
+        //    foreach (var page in xchrome.BrowserContext.Pages)
+        //    {
+        //        await page.SetViewportSizeAsync(ww, hh);
+        //    }
+        //    //chrome的一个bug，修复
+        //    Win32Helper.ChangeWindowPos(hwd, ret.Left, ret.Top, ret.Right - ret.Left, ret.Bottom - ret.Top);
 
-        }
+        //}
 
 
         /// <summary>
@@ -126,19 +127,38 @@ namespace XChrome.cs.xchrome
                 return null;
             }
         }
-
-
-        public (int wdith,int height,int left,int top) Get_ArrayChromes_Size(int type, string width, string height, string licount, int screenIndex,int xchrome_count)
+        public (string protocol, string Address, int Port, string name, string pass)? getProxy2(string proxy)
         {
-            
+            if (!proxy.StartsWith("http") && !proxy.StartsWith("socks5"))
+            {
+                proxy = "http://" + proxy;
+                //var _proxy = new Proxy();
+                string[] pp = proxy.Split(":");
+                return (pp[0], pp[1].Replace("//", ""),Convert.ToInt32(pp[2]), pp.Length>3? pp[3]:"",pp.Length>4? pp[4]:"");
+            }else if (proxy.StartsWith("socks5"))
+            {
+                string[] pp = proxy.Split(":");
+                return (pp[0], pp[1].Replace("//", ""), Convert.ToInt32(pp[2]), pp.Length > 3 ? pp[3] : "", pp.Length > 4 ? pp[4] : "");
+            }
+            return null;
+        }
+
+        //public string  
+
+
+        public List<(int wdith, int height, int left, int top)> Get_ArrayChromes_Size(int type, string width, string height, string licount, int screenIndex, int xchrome_count)
+        {
+            List<(int wdith, int height, int left, int top)> list = new List<(int wdith, int height, int left, int top)>();
             //获得屏幕
             Screen screen = Screen.AllScreens[screenIndex];
             //屏幕位置 workarea
             var workarea = screen.WorkingArea;
+            
             //自定义
             bool isCustom = (width != "" && height != "" && licount != "");
             if (isCustom) { type = 0; }
-
+            int startTop = workarea.Top;
+            int startLeft = workarea.Left;
             //平铺
             if (type == 0)
             {
@@ -147,24 +167,46 @@ namespace XChrome.cs.xchrome
                 {
                     int _screen_width = screen.Bounds.Width;
                     int _screen_height = screen.Bounds.Height;
-                    int startTop = workarea.Top;
-                    int startLeft = workarea.Left;
+                   
 
                     var windowlist = ComputeAdaptiveWindowPositions(_screen_width, _screen_height, xchrome_count);
-                    
-                    if (windowlist.Count > 0)
+                    for (int i = 0; i < windowlist.Count; i++)
                     {
-                        return (windowlist[0].Width, windowlist[0].Height, windowlist[0].Left, windowlist[0].Top);
+                        var window = windowlist[i];
+                        list.Add((window.Width, window.Height, startLeft+window.Left, startTop + window.Top));
                     }
-                    
                 }
                 //自定义填写
                 else
                 {
                     int _width = width.TryToInt32(100);
                     int _height = height.TryToInt32(100);
-                    return (_width, _height,0,0);
+                    int left = 0;
+                    int top = 0;
+                    for(int i=0;i< xchrome_count; i++)
+                    {
+                        
+                        
+                        if ((i % licount.TryToInt32(3)) == 0)
+                        {
+                            if (i == 0)
+                            {
+                                top = 0;
+                            }
+                            else
+                            {
+                                top += _height;
+                            }
+                            left = 0;
+                        }
+                        else
+                        {
+                            left += _width;
+                        }
 
+                        list.Add((_width, _height, startLeft+left, startTop+top));
+                        
+                    }
                 }
             }
             //重叠排序
@@ -174,10 +216,14 @@ namespace XChrome.cs.xchrome
                 int current_left = workarea.Left;
                 int _width = workarea.Width - idslist.Count * 30;
                 int _height = workarea.Height - 20;
-                return (_width, _height,0,0);
+                for (int i = 0; i < xchrome_count; i++)
+                {
+                    list.Add((_width, _height, startLeft + 0, startTop + 0));
+                }
+
             }
 
-            return (0, 0,0,0);
+            return list;
         }
 
     }

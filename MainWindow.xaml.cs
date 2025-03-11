@@ -166,8 +166,6 @@ namespace XChrome
             cts.Cancel();
             //关闭任务服务
             cs.JoberManager.Stop();
-            //关闭 playwirght
-            await XChromeManager.Instance.DisposePlayWright();
             //关闭控制器
             cs.MouseHookServer.UnIni();
             //
@@ -290,10 +288,23 @@ namespace XChrome
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
             ver_text.Text = $"版本：{version}";
 
+
             //创建通知管理器
             CreateNotifier();
 
-            
+            if (cs.Config.isZChrome && cs.Config.chrome_path == "")
+            {
+                System.Windows.MessageBox.Show("目前版本必须指定你自己的chrome程序，即将跳转去设置！");
+                _=Task.Run(async() => {
+                    await Task.Delay(200);
+                    Dispatcher.Invoke(new Action(() => {
+                        MainFrame_other.Visibility = Visibility.Visible;
+                        MainFrame_main.Visibility = Visibility.Hidden;
+                        MainFrame_other.Navigate(new pages.SetConfig());
+                    }));
+                } );
+                
+            }
         }
         #endregion
 
@@ -336,20 +347,22 @@ namespace XChrome
                 MainFrame_other.Visibility = Visibility.Visible;
                 MainFrame_main.Visibility = Visibility.Hidden;
             }
-            switch (index) { 
-                case 0:
+            ListBoxItem lb=((ListBox)sender).SelectedItem as ListBoxItem;
+            string tag=lb.Tag?.ToString()??"";
+            switch (tag) { 
+                case "chrome":
                     //环境管理
                     if (CManager._cmanager==null)
                         MainFrame_main.Navigate(new pages.CManager());
                     break;
-                case 1:
+                case "group":
                     //分组管理
                     MainFrame_other.Navigate(new pages.GroupManager());
                     break;
-                case 2:
+                case "script":
                     MainFrame_other.Navigate(new pages.Coding());
                     break;
-                case 5:
+                case "set":
                     //系统设置
                     MainFrame_other.Navigate(new pages.SetConfig());
                     break;

@@ -38,36 +38,42 @@
                         <TextBlock Margin="5,0,0,0"><Run Text="[+]"/></TextBlock>
                     </StackPanel>
                 </Button>
-                <ListBox VerticalContentAlignment="Center" VerticalAlignment="Top" SelectionChanged="ListBox_SelectionChanged"  HorizontalAlignment="Left" Width="160" Height="250" Margin="0,120,0,0" Panel.ZIndex="100">
-                    <ListBoxItem x:Name="ListBoxItem_cmanager" Height="39" HorizontalAlignment="Center" Padding="20,9,0,4" Width="160" VerticalAlignment="Bottom">
+                <ListBox VerticalContentAlignment="Center"  VerticalAlignment="Top" SelectionChanged="ListBox_SelectionChanged"  HorizontalAlignment="Left" Width="160" Height="280" Margin="0,120,0,0" Panel.ZIndex="100">
+                    <ListBoxItem x:Name="ListBoxItem_cmanager" Tag="chrome"  Height="39" HorizontalAlignment="Center" Padding="20,9,0,4" Width="160" VerticalAlignment="Bottom">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/Resources/hj.png" Height="22"></Image>
+                            <iconPacks:PackIconFontAwesome Kind="ChromeBrands" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,3,4,0"/>
                             <TextBlock Padding="5,3,5,0" FontSize="14"><Run Text="环境管理"/></TextBlock>
                         </StackPanel>
                     </ListBoxItem>
-                    <ListBoxItem Height="39" HorizontalAlignment="Center" Padding="20,9,0,4" Width="160" VerticalAlignment="Bottom">
+                    <ListBoxItem Height="39" Tag="group" HorizontalAlignment="Center" Padding="20,9,0,4" Width="160" VerticalAlignment="Bottom">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/Resources/qk.png" Height="22"></Image>
+                            <iconPacks:PackIconFontAwesome Kind="ObjectUngroupRegular" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,3,4,0"/>
                             <TextBlock Padding="5,3,5,0" FontSize="14"><Run Text="分组管理"/></TextBlock>
                         </StackPanel>
                     </ListBoxItem>
                   
-                    <ListBoxItem Height="39" HorizontalAlignment="Center" Padding="20,9,0,4" Width="160" VerticalAlignment="Bottom">
+                    <ListBoxItem Height="39" Tag="script" HorizontalAlignment="Center" Padding="20,9,0,4" Width="160" VerticalAlignment="Bottom">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/Resources/jb.png" Height="22"></Image>
+                            <iconPacks:PackIconFontAwesome Kind="SubscriptSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,3,4,0"/>
                             <TextBlock Padding="5,3,5,0" FontSize="14"><Run Text="脚本管理"/></TextBlock>
                         </StackPanel>
                     </ListBoxItem>
-                    <ListBoxItem Height="39" HorizontalAlignment="Center" Padding="20,9,0,4" Width="160" VerticalAlignment="Bottom">
+                    <ListBoxItem Height="39" Tag="api" HorizontalAlignment="Center" Padding="20,9,0,4" Width="160" VerticalAlignment="Bottom">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/Resources/hsz.png" Height="22"></Image>
+                            <iconPacks:PackIconFontAwesome Kind="AutoprefixerBrands" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,3,4,0"/>
+                            <TextBlock Padding="5,3,5,0" FontSize="14"><Run Text="API管理"/></TextBlock>
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Height="39" Tag="huishou" HorizontalAlignment="Center" Padding="20,9,0,4" Width="160" VerticalAlignment="Bottom">
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconFontAwesome Kind="RecycleSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,3,4,0"/>
                             <TextBlock Padding="5,3,5,0" FontSize="14"><Run Text="回收站"/></TextBlock>
                         </StackPanel>
                     </ListBoxItem>
                     <Line X1="1" Y1="10" X2="120" Y2="10" Stroke="Black" StrokeThickness="0.1" />
-                    <ListBoxItem Height="39" HorizontalAlignment="Center" Padding="20,9,0,4" Width="160" VerticalAlignment="Bottom">
+                    <ListBoxItem Height="39" Tag="set" HorizontalAlignment="Center" Padding="20,9,0,4" Width="160" VerticalAlignment="Bottom">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <iconPacks:PackIconFontAwesome Kind="ScrewdriverWrenchSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
+                            <iconPacks:PackIconFontAwesome Kind="ScrewdriverWrenchSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,3,4,0"/>
                             <TextBlock VerticalAlignment="Center" FontSize="14" Text="系统设置"/>
                         </StackPanel>
                     </ListBoxItem>

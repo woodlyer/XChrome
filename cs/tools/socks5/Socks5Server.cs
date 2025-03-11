@@ -11,6 +11,9 @@ using XChrome.cs.tools.YTools;
 
 namespace XChrome.cs.tools.socks5
 {
+    /// <summary>
+    /// 已作废
+    /// </summary>
     public class Socks5Server
     {
         public static bool _isStop = false;
@@ -78,6 +81,13 @@ namespace XChrome.cs.tools.socks5
         /// <param name="cancellationToken"></param>
         public static void Start(CancellationToken cancellationToken)
         {
+            if (cs.Config.isZChrome)
+            {
+                Proxy2ProxyPools.Start(cancellationToken);
+                return;
+            }
+
+
             Task.Run(async () =>
             {
                 
@@ -126,6 +136,11 @@ namespace XChrome.cs.tools.socks5
 
         public static void Stop()
         {
+            if (cs.Config.isZChrome)
+            {
+                Proxy2ProxyPools.Stop();
+                return;
+            }
             //已经用 CancellationToken 实现
             _isStop = true;
         }

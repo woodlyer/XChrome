@@ -5,10 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XChrome.cs.tools.YTools;
+using XChrome.cs.zchrome;
+using XChrome.cs.zchrome;
 
 namespace XChrome.cs.xchrome
 {
-    public class ManagerCache
+    public class ManagerCache_del
     {
         public IPlaywright? playwright = null;
 

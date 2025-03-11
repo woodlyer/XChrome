@@ -18,11 +18,21 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Shapes;
 using XChrome.cs.db;
+using XChrome.cs.tools.YTools;
 
 namespace XChrome.cs
 {
     public class Config
     {
+        /// <summary>
+        /// 1.8版本后改成自研的chrome适配层
+        /// </summary>
+        public static bool isZChrome = true;
+
+        /// <summary>
+        /// 每页多少
+        /// </summary>
+        public static int pageSize = 15;
         /// <summary>
         /// 数据存储位置
         /// </summary>
@@ -47,6 +57,11 @@ namespace XChrome.cs
         public static string github_url = "http://web3tool.vip/xchrome/github";
 
         /// <summary>
+        /// x
+        /// </summary>
+        public static string x_url = "https://x.com/chanawudi";
+
+        /// <summary>
         /// 自定义chrome路径
         /// </summary>
         public static string chrome_path = "";
@@ -60,10 +75,15 @@ namespace XChrome.cs
             if (!System.IO.Path.Exists(chrome_data_path)) { Directory.CreateDirectory(chrome_data_path); }
             var db = MyDb.DB;
             userid=await db.Queryable<cs.db.Config>().Where(it => it.key == "userid").Select(it => it.val).FirstAsync();
-            var cp = await db.Queryable<cs.db.Config>().Where(it => it.key == "chromePath").FirstAsync();
-            if (cp != null)
-            {
-                chrome_path = cp.val.Trim();
+            var cp = await db.Queryable<cs.db.Config>().Where(it => it.key == "chromePath" || it.key=="pageSize").ToListAsync();
+            foreach (var v in cp) { 
+                if(v.key== "chromePath")
+                {
+                    chrome_path = v.val.Trim();
+                }else if(v.key== "pageSize")
+                {
+                    pageSize=v.val.Trim().TryToInt32(20);
+                }
             }
             
 

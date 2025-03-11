@@ -72,6 +72,10 @@ name TEXT, userAgent TEXT,proxy TEXT,proxyText TEXT,groupId INTEGER,createDate D
             sql = "ALTER TABLE [Chrome] ADD COLUMN extensions TEXT";
             try { await db.Ado.ExecuteCommandAsync(sql); } catch (Exception ex) { }
 
+            //chrome 增加自定义目录
+            sql = "ALTER TABLE [Chrome] ADD COLUMN datapath TEXT";
+            try { await db.Ado.ExecuteCommandAsync(sql); } catch (Exception ex) { }
+
 
             //增加表 Config
             sql = "CREATE TABLE IF NOT EXISTS [Config] (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, val TEXT);";

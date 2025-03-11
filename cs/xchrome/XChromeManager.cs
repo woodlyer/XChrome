@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using XChrome.cs.tools.socks5;
 using XChrome.cs.tools.YTools;
 using XChrome.cs.win32;
+using XChrome.cs.zchrome;
 using XChrome.pages;
 
 namespace XChrome.cs.xchrome
@@ -21,17 +22,17 @@ namespace XChrome.cs.xchrome
         private static readonly Lazy<XChromeManager> lazyInstance =new Lazy<XChromeManager>(() => new XChromeManager());
         public static XChromeManager Instance => lazyInstance.Value;
 
-        public ManagerCache _ManagerCache { get; set; }
-        public ManagerJober _ManagerJober { get; set; }
-        public ManagerControler _ManagerControler { get; set; }
-        public ManagerTooler _ManagerTooler { get; set; }
+        public ManagerCache_del _ManagerCache { get; set; }
+        public ManagerJober_del _ManagerJober { get; set; }
+        public ManagerControler_del _ManagerControler { get; set; }
+        public ManagerTooler_del _ManagerTooler { get; set; }
 
         public XChromeManager()
         {
-            _ManagerCache = new ManagerCache();
-            _ManagerJober = new ManagerJober(_ManagerCache);
-            _ManagerControler = new ManagerControler(_ManagerCache);
-            _ManagerTooler = new ManagerTooler(_ManagerCache);
+            _ManagerCache = new ManagerCache_del();
+            _ManagerJober = new ManagerJober_del(_ManagerCache);
+            _ManagerControler = new ManagerControler_del(_ManagerCache);
+            _ManagerTooler = new ManagerTooler_del(_ManagerCache);
         }
 
 

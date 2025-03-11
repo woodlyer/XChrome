@@ -9,56 +9,68 @@
       xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
       xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
       mc:Ignorable="d" 
+      d:Background="White"
       d:DesignHeight="450" d:DesignWidth="800"
       Loaded="Page_Loaded"
       Title="SetConfig">
-
-
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,20,0,0" HorizontalScrollBarVisibility="Disabled">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="120"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="50"></RowDefinition>
-                <RowDefinition Height="80"></RowDefinition>
-                <RowDefinition Height="50"></RowDefinition>
-               
-            </Grid.RowDefinitions>
-
-
-
-            <Label Content="Chrome路径：" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" Grid.Column="0" Grid.Row="0"></Label>
-            <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
-                <TextBox x:Name="chromePath" x:FieldModifier="private" HorizontalAlignment="Left" Width="380" Height="30"></TextBox>
-                <Button x:Name="openFolder_btn" x:FieldModifier="private" Click="openFolder_btn_Click"  HorizontalAlignment="Center" Height="30" Margin="5" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <iconPacks:PackIconFontAwesome Kind="FolderOpenRegular" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
-                        <TextBlock VerticalAlignment="Center" Text="选择路径"/>
+    <Border BorderBrush="LightGray" Margin="0,10,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <Grid Margin="5" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="130" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="60" />
+                    </Grid.RowDefinitions>
+                    <Label Content="chrome路径：" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" Grid.Column="0" Grid.Row="0"></Label>
+                    <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+                        <TextBox x:Name="chromePath" x:FieldModifier="private" HorizontalAlignment="Left" Width="380" Height="30"></TextBox>
+                        <Button x:Name="openFolder_btn" x:FieldModifier="private" Click="openFolder_btn_Click"  HorizontalAlignment="Center" Height="30" Margin="5" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <iconPacks:PackIconFontAwesome Kind="FolderOpenRegular" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
+                                <TextBlock VerticalAlignment="Center" Text="选择路径"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
-                </Button>
-            </StackPanel>
-
-            <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
-                <TextBlock HorizontalAlignment="Left"  Width="589" Height="70" LineHeight="20"  Margin="10,10,0,5" >
-        留空默认用软件自带chrome，<Run Text="稳定可靠" Foreground="Red"></Run><LineBreak/>
-        如需要自己的chrome路径，请填入chrome.exe 路径<LineBreak/>
-         类似：C:\Program Files\Google\Chrome\Application\chrome.exe），因版本差异，可能会有不稳定因素<LineBreak/>
-       
-                </TextBlock>
-            </StackPanel>
-
-
-            <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal">
-                <Button x:Name="submit_btn" Click="submit_btn_Click" HorizontalAlignment="Center" Height="35" Width="100" Margin="5" VerticalAlignment="Center" Style="{DynamicResource {x:Static adonisUi:Styles.AccentButton}}">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <iconPacks:PackIconFontAwesome Kind="CheckSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
-                        <TextBlock x:Name="okbtntxt" x:FieldModifier="private" VerticalAlignment="Center" Text=" 确定 "/>
+                    <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
+                        <TextBlock HorizontalAlignment="Left"  Width="589" Height="70" LineHeight="20"  Margin="10,10,0,5" >
+请输入自己chrome路径，目前只是最新chrome，建议用小于等于134版本（开发本软件时候的版本） <LineBreak/>
+ 类似：C:\Program Files\Google\Chrome\Application\chrome.exe），因版本差异，可能会有不稳定因素<LineBreak/>
+                        </TextBlock>
                     </StackPanel>
-                </Button>
-            </StackPanel>
+                </Grid>
 
-        </Grid>
-    </ScrollViewer>
+
+                <Grid Margin="5" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="130" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label Content="每页数量：" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" Grid.Column="0" Grid.Row="0"></Label>
+                    <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+                        <TextBox x:Name="pageSize_text" x:FieldModifier="private" HorizontalAlignment="Left" Width="100" Height="30"></TextBox>
+                        
+                    </StackPanel>
+                    
+                </Grid>
+
+
+                <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
+                    <Button x:Name="submit_btn" Click="submit_btn_Click" HorizontalAlignment="Center" Height="35" Width="100" Margin="5" VerticalAlignment="Center" Style="{DynamicResource {x:Static adonisUi:Styles.AccentButton}}">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <iconPacks:PackIconFontAwesome Kind="CheckSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
+                            <TextBlock x:Name="okbtntxt" x:FieldModifier="private" VerticalAlignment="Center" Text=" 确定 "/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+
+
 </Page>

@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XChrome.cs.zchrome;
 
-namespace XChrome.cs.xchrome
+namespace XChrome.cs.zchrome
 {
     public class XChromeClient
     {
@@ -18,7 +19,19 @@ namespace XChrome.cs.xchrome
         /// </summary>
         public uint ExtensionsHwnd { get; set; } = 0;
 
+        /// <summary>
+        /// 1.8后失效
+        /// </summary>
         public IBrowserContext? BrowserContext { get; set; } = null;
+
+        /// <summary>
+        /// 1.8后有效
+        /// </summary>
+        public ZChromeClient ZChromeClient { get; set; } = null;
+        public int StartWidth {  get; set; } = 0;
+        public int StartHeight { get; set; } = 0;
+        public int StartTop { get; set; } = 0;
+        public int StartLeft { get; set; } = 0;
 
         public long Id { get; set; } = 0;
 
@@ -31,9 +44,15 @@ namespace XChrome.cs.xchrome
 
         public string Extensions { get; set; } = "";
 
+        /// <summary>
+        /// 1.8后失效
+        /// </summary>
         public ViewportSize? ViewportSize { get; set; } = null;
 
         //内部页面大小
+        /// <summary>
+        /// 1.8后失效
+        /// </summary>
         public int LegacyWindowWidth = 0;
         public int LegacyWindowHeight = 0;
     }

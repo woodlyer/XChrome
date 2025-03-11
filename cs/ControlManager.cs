@@ -23,6 +23,7 @@ using System.Windows.Forms;
 using XChrome.cs.db;
 using XChrome.cs.win32;
 using XChrome.cs.xchrome;
+using XChrome.cs.zchrome;
 using static XChrome.cs.win32.Win32Helper;
 
 namespace XChrome.cs
@@ -88,11 +89,11 @@ namespace XChrome.cs
                     Win32Helper.LockSetForegroundWindow(1);
                     if (args.Button == MouseButtons.Left)
                     {
-                        XChromeManager.Instance._ManagerControler.CopyControl_Click(_xchrome.ExtensionsHwnd, _xx, _yy,true);
+                        ZChromeManager.Instance._ManagerControler.CopyControl_Click(_xchrome.ExtensionsHwnd, _xx, _yy,true);
                     }
                     else
                     {
-                        XChromeManager.Instance._ManagerControler.CopyControl_Click(_xchrome.ExtensionsHwnd, _xx, _yy,true, "Right");
+                        ZChromeManager.Instance._ManagerControler.CopyControl_Click(_xchrome.ExtensionsHwnd, _xx, _yy,true, "Right");
                     }
                     return;
                 }
@@ -108,11 +109,11 @@ namespace XChrome.cs
                 if (args.Button == MouseButtons.Left)
                 {
 
-                    XChromeManager.Instance._ManagerControler.CopyControl_Click(_main_xchrome_id, xx, yy,false);
+                    ZChromeManager.Instance._ManagerControler.CopyControl_Click(_main_xchrome_id, xx, yy,false);
                 }
                 else
                 {
-                    XChromeManager.Instance._ManagerControler.CopyControl_Click(_main_xchrome_id, xx, yy,false, "Right");
+                    ZChromeManager.Instance._ManagerControler.CopyControl_Click(_main_xchrome_id, xx, yy,false, "Right");
                 }
                 return;
             }
@@ -128,7 +129,7 @@ namespace XChrome.cs
                 {
                     int _xx = args.X - isInExs.Item2.Value.Left;
                     int _yy = args.Y - isInExs.Item2.Value.Top;
-                    XChromeManager.Instance._ManagerControler.CopyControl_Wheel(_xchrome.ExtensionsHwnd, _xx, _yy, args.Delta, true);
+                    ZChromeManager.Instance._ManagerControler.CopyControl_Wheel(_xchrome.ExtensionsHwnd, _xx, _yy, args.Delta, true);
                     return;
                 }
                 //Debug.WriteLine("yua:"+args.X + "," + args.Y);
@@ -138,7 +139,7 @@ namespace XChrome.cs
                 //计算点击的相对位置
                 int xx = args.X - _main_left;
                 int yy = args.Y - _main_top;
-                XChromeManager.Instance._ManagerControler.CopyControl_Wheel(_main_xchrome_id, xx, yy, args.Delta);
+                ZChromeManager.Instance._ManagerControler.CopyControl_Wheel(_main_xchrome_id, xx, yy, args.Delta);
             }
 
             //输入char
@@ -150,7 +151,7 @@ namespace XChrome.cs
                 //主窗口
                 if(qwin==_main_hwd)
                 {
-                    XChromeManager.Instance._ManagerControler.CopyControl_keyPress(_main_xchrome_id, me.keyChar.Value);
+                    ZChromeManager.Instance._ManagerControler.CopyControl_keyPress(_main_xchrome_id, me.keyChar.Value);
                     return;
                 }
                 //插件弹窗内
@@ -160,7 +161,7 @@ namespace XChrome.cs
                     //判断窗口是否存在
                     var iswindow = Win32Helper.IsWindow((IntPtr)qwin);
                     if (!iswindow) return;
-                    XChromeManager.Instance._ManagerControler.CopyControl_keyPress(qwin, me.keyChar.Value,true);
+                    ZChromeManager.Instance._ManagerControler.CopyControl_keyPress(qwin, me.keyChar.Value,true);
                 }
 
 
@@ -178,7 +179,7 @@ namespace XChrome.cs
                 //主窗口
                 if (qwin == _main_hwd)
                 {
-                    XChromeManager.Instance._ManagerControler.CopyControl_keyDownOther(_main_xchrome_id, args.KeyCode);
+                    ZChromeManager.Instance._ManagerControler.CopyControl_keyDownOther(_main_xchrome_id, args.KeyCode);
                     return;
                 }
                 //插件弹窗内
@@ -188,7 +189,7 @@ namespace XChrome.cs
                     //判断窗口是否存在
                     var iswindow = Win32Helper.IsWindow((IntPtr)qwin);
                     if (!iswindow) return;
-                    XChromeManager.Instance._ManagerControler.CopyControl_keyDownOther(qwin, args.KeyCode,true);
+                    ZChromeManager.Instance._ManagerControler.CopyControl_keyDownOther(qwin, args.KeyCode,true);
                 }
 
 
@@ -208,7 +209,7 @@ namespace XChrome.cs
                     int _xx = args.X - isInExs.Item2.Value.Left;
                     int _yy = args.Y - isInExs.Item2.Value.Top;
 
-                    XChromeManager.Instance._ManagerControler.CopyControl_MouseMove(_xchrome.ExtensionsHwnd, _xx, _yy,true);
+                    ZChromeManager.Instance._ManagerControler.CopyControl_MouseMove(_xchrome.ExtensionsHwnd, _xx, _yy,true);
                     return;
                 }
 
@@ -217,7 +218,7 @@ namespace XChrome.cs
                 int xx = args.X - _main_left;
                 int yy = args.Y - _main_top;
 
-                XChromeManager.Instance._ManagerControler.CopyControl_MouseMove(_main_xchrome_id, xx, yy);
+                ZChromeManager.Instance._ManagerControler.CopyControl_MouseMove(_main_xchrome_id, xx, yy);
             }
 
             //鼠标悬停
@@ -229,14 +230,14 @@ namespace XChrome.cs
                 {
                     int _xx = me.hoverX - isInExs.Item2.Value.Left;
                     int _yy = me.hoverY - isInExs.Item2.Value.Top;
-                    XChromeManager.Instance._ManagerControler.CopyControl_MouseHover(_xchrome.ExtensionsHwnd, _xx, _yy,true);
+                    ZChromeManager.Instance._ManagerControler.CopyControl_MouseHover(_xchrome.ExtensionsHwnd, _xx, _yy,true);
                     return;
                 }
 
                 int xx = me.hoverX - _main_left;
                 int yy = me.hoverY - _main_top;
 
-                XChromeManager.Instance._ManagerControler.CopyControl_MouseHover(_main_xchrome_id, xx, yy);
+                ZChromeManager.Instance._ManagerControler.CopyControl_MouseHover(_main_xchrome_id, xx, yy);
             }
 
             //鼠标谈起
@@ -254,11 +255,11 @@ namespace XChrome.cs
                     Win32Helper.LockSetForegroundWindow(1);
                     if (args.Button == MouseButtons.Left)
                     {
-                        XChromeManager.Instance._ManagerControler.CopyControl_ClickUp(_xchrome.ExtensionsHwnd, _xx, _yy, true);
+                        ZChromeManager.Instance._ManagerControler.CopyControl_ClickUp(_xchrome.ExtensionsHwnd, _xx, _yy, true);
                     }
                     else
                     {
-                        XChromeManager.Instance._ManagerControler.CopyControl_ClickUp(_xchrome.ExtensionsHwnd, _xx, _yy, true, "Right");
+                        ZChromeManager.Instance._ManagerControler.CopyControl_ClickUp(_xchrome.ExtensionsHwnd, _xx, _yy, true, "Right");
                     }
                     Win32Helper.LockSetForegroundWindow(2);
                     return;
@@ -275,11 +276,11 @@ namespace XChrome.cs
                 //传递
                 if (args.Button == MouseButtons.Left)
                 {
-                    XChromeManager.Instance._ManagerControler.CopyControl_ClickUp(_main_xchrome_id, xx, yy,false);
+                    ZChromeManager.Instance._ManagerControler.CopyControl_ClickUp(_main_xchrome_id, xx, yy,false);
                 }
                 else
                 {
-                    XChromeManager.Instance._ManagerControler.CopyControl_ClickUp(_main_xchrome_id, xx, yy,false, "Right");
+                    ZChromeManager.Instance._ManagerControler.CopyControl_ClickUp(_main_xchrome_id, xx, yy,false, "Right");
                 }
                 Win32Helper.LockSetForegroundWindow(2);
                 return;
@@ -296,7 +297,7 @@ namespace XChrome.cs
 
             _main_xchrome_id=xchrome_id;
             //获得主控xchrome
-            var xchrome = XChromeManager.Instance._ManagerCache.GetRuningXchromeById(xchrome_id);
+            var xchrome = ZChromeManager.Instance._ManagerCache.GetRuningXchromeById(xchrome_id);
             if (xchrome == null) { return; }
             _xchrome = xchrome;
             //获取主控位置

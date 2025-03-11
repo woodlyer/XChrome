@@ -10,6 +10,7 @@
 */
 #endregion
 using Microsoft.Playwright;
+using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -230,7 +231,8 @@ namespace XChrome.forms
             proxytext = o.proxyText;
             chrome_id_text.Text=id.ToString();
             othertxt.Text = o.envs;
-            exlist_text.Text = (o.extensions ?? "").Replace("|","\r\n");
+            //exlist_text.Text = (o.extensions ?? "").Replace("|","\r\n");
+            datapath_text.Text=(string.IsNullOrEmpty(o.datapath)?(System.IO.Path.Combine( Directory.GetCurrentDirectory(), "chrome_data",id.ToString())):o.datapath);
             //设置分组
             long groupid = o.groupId.Value;
             var group=groupList.Items.OfType<Group>().FirstOrDefault(it=>it.id == groupid);
@@ -303,14 +305,14 @@ namespace XChrome.forms
             }
 
 
-            if (proxy.StartsWith("socks5"))
-            {
-                var bb =Socks5Server.IsSocks5MustDo(proxy,out string httpproxy);
-                if (!bb) {
-                    MainWindow.Toast_Error("socks5格式不对，正确的应该是：socks5://ip:端口:用户名:密码");
-                    return;
-                }
-            }
+            //if (proxy.StartsWith("socks5"))
+            //{
+            //    var bb =Socks5Server.IsSocks5MustDo(proxy,out string httpproxy);
+            //    if (!bb) {
+            //        MainWindow.Toast_Error("socks5格式不对，正确的应该是：socks5://ip:端口:用户名:密码");
+            //        return;
+            //    }
+            //}
 
             proxy = proxy.Replace("：",":");
             check_proxy_btn.IsEnabled = false;
@@ -346,6 +348,8 @@ namespace XChrome.forms
             long groupId = groupList.SelectedItem==null?1:( groupList.SelectedItem as Group).id;
             string remark = remark_text.Text;
             string proxy = proxy_text.Text.Trim();
+            string datapath = datapath_text.Text.Trim();
+            
 
             Chrome c = new Chrome();
             c.name = name;
@@ -359,7 +363,17 @@ namespace XChrome.forms
             c.remark = remark;
             c.tags = "";
             c.envs=othertxt.Text.Trim();
-            c.extensions =exlist_text.Text.Trim().Replace("\r\n","|").Replace("\n","|");
+            //c.extensions =exlist_text.Text.Trim().Replace("\r\n","|").Replace("\n","|");
+            if (datapath == System.IO.Path.Combine(Directory.GetCurrentDirectory(), "chrome_data", id.ToString()))
+            {
+                c.datapath = "";
+            }
+            else
+            {
+                c.datapath = datapath;
+            }
+
+
             //othertxt
             if (proxy == "") c.proxyText = "";
 
@@ -569,6 +583,34 @@ namespace XChrome.forms
             double j2 = Convert.ToDouble(j) + offset;
             sj_jw_w.Text = w2.ToString("f4");
             sj_jw_j.Text = j2.ToString("f4");
+        }
+
+        private void default_datapath_btn_Click(object sender, RoutedEventArgs e)
+        {
+            if(id==-1) {
+                datapath_text.Text = "";
+                return;
+            }
+            datapath_text.Text = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "chrome_data", id.ToString());
+        }
+
+        private void change_datapath_btn_Click(object sender, RoutedEventArgs e)
+        {
+            // 创建一个 OpenFileDialog 实例
+            OpenFolderDialog openFileDialog = new OpenFolderDialog
+            {
+                Title = "请选择一个路径",
+                // 过滤器，仅显示 exe 文件（也可以选择 All Files）
+                //Filter = "Executable Files (*.exe)|*.exe|All Files (*.*)|*.*"
+            };
+
+            // 打开对话框，并判断用户是否选中文件
+            if (openFileDialog.ShowDialog() == true)
+            {
+                // 获取用户选中的文件路径
+                string selectedFile = openFileDialog.FolderName;
+                datapath_text.Text = selectedFile;
+            }
         }
     }
 

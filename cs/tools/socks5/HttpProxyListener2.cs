@@ -9,19 +9,18 @@ using XChrome.cs.tools.socks5;
 
 namespace HttpToSocks5Proxy
 {
-    /// <summary>
-    /// 已作废
-    /// </summary>
-    internal class HttpProxyListener
+    internal class HttpProxyListener2
     {
         private readonly IPEndPoint _endPoint;
         private readonly int _backlog;
 
         private string? _authorization;
         private string? _username = "";
+        ITunnelFactory _tunnel;
 
-        public HttpProxyListener(IPEndPoint endPoint, int backlog)
+        public HttpProxyListener2(IPEndPoint endPoint, int backlog, ITunnelFactory _tunnel)
         { 
+            this._tunnel = _tunnel;
             _endPoint = endPoint ?? throw new ArgumentNullException(nameof(endPoint));
             _backlog = backlog;
         }
@@ -37,21 +36,47 @@ namespace HttpToSocks5Proxy
             }
             socket.Bind(_endPoint);
             socket.Listen(_backlog);
-            using (cancellationToken.UnsafeRegister(s => { ((IDisposable)s!).Dispose(); }, socket))
+            _ = Task.Run(async () =>
             {
-                while (!cancellationToken.IsCancellationRequested)
+                using (cancellationToken.UnsafeRegister(s => { ((IDisposable)s!).Dispose(); }, socket))
                 {
-                    if (Socks5Server._isStop) break;
-                    Socket incoming = await socket.AcceptAsync();
-                    _ = Task.Run(() => ProcessSocketAsync(incoming, cancellationToken));
-                }
+                    while (!cancellationToken.IsCancellationRequested)
+                    {
+                        if (Socks5Server._isStop) break;
+                        Socket incoming = await socket.AcceptAsync();
+                        _ = Task.Run(() => ProcessSocketAsync(incoming, cancellationToken));
+                    }
+                    //Debug.WriteLine("HttpProxyListener2=====>close");
 
-            }
+                }
+               // Debug.WriteLine("HttpProxyListener2=====>close2");
+            });
+            //Debug.WriteLine("HttpProxyListener2=====>close3");
         }
 
         private async Task ProcessSocketAsync(Socket socket, CancellationToken cancellationToken)
         {
-           
+            if (XChrome.cs.Config.isZChrome)
+            {
+                using (var ns = new NetworkStream(socket, ownsSocket: true))
+                {
+                    var processor = new HttpProxyProcessor2(ns, _tunnel);
+                    if (!(_authorization is null))
+                    {
+                        processor.SetCredential(_authorization);
+                    }
+                    try
+                    {
+                        await processor.RunAsync(cancellationToken);
+                    }
+                    catch (Exception)
+                    {
+                        // Ignore
+                    }
+
+                }
+                return;
+            }
             
             using (var ns = new NetworkStream(socket, ownsSocket: true))
             {

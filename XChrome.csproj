@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <AssemblyVersion>1.7</AssemblyVersion>
-    <FileVersion>1.7</FileVersion>
+    <AssemblyVersion>1.9</AssemblyVersion>
+    <FileVersion>1.9</FileVersion>
     <ApplicationIcon>xchrome.ico</ApplicationIcon>
     <Copyright>瑞雪社区--刹那</Copyright>
     <LangVersion>preview</LangVersion>

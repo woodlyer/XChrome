@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using XChrome.cs.db;
+using XChrome.cs.tools.YTools;
 
 namespace XChrome.pages
 {
@@ -67,6 +68,7 @@ namespace XChrome.pages
                     return;
                 }
             }
+            string pageSize = pageSize_text.Text.Trim().TryToInt32(20).ToString();
 
 
             var db = MyDb.DB;
@@ -79,8 +81,24 @@ namespace XChrome.pages
             {
                 await db.Updateable<cs.db.Config>().Where(it => it.key == "chromePath").SetColumns(it => it.val == cPath).ExecuteCommandAsync();
             }
-            db.Close();
+
+            cp = await db.Queryable<cs.db.Config>().Where(it => it.key == "pageSize").FirstAsync();
+            if (cp == null)
+            {
+                await db.Insertable<cs.db.Config>(new cs.db.Config() { key = "pageSize", val = pageSize }).ExecuteCommandAsync();
+            }
+            else
+            {
+                await db.Updateable<cs.db.Config>().Where(it => it.key == "pageSize").SetColumns(it => it.val == pageSize).ExecuteCommandAsync();
+            }
+
+
             cs.Config.chrome_path = cPath;
+            cs.Config.pageSize = pageSize.TryToInt32(20);
+
+
+
+            db.Close();
 
 
             MainWindow.Toast_Success("保存成功");
@@ -92,6 +110,7 @@ namespace XChrome.pages
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             chromePath.Text = cs.Config.chrome_path;
+            pageSize_text.Text=cs.Config.pageSize.ToString();
         }
     }
 }

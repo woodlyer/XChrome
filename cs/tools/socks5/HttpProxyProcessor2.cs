@@ -14,18 +14,15 @@ using System.Threading.Tasks;
 using XChrome.cs.tools.socks5;
 
 namespace HttpToSocks5Proxy
-{
-    /// <summary>
-    /// 已作废
-    /// </summary>
-    internal class HttpProxyProcessor
+{ 
+    internal class HttpProxyProcessor2
     {
         //private readonly ITunnelFactory _tunnelFactory;
 
         /// <summary>
         /// 用户名和socks5对应
         /// </summary>
-        private static Dictionary<string, ITunnelFactory> username_ITunnel = new Dictionary<string, ITunnelFactory>();
+        private ITunnelFactory _tunnel;
 
 
         private readonly Stream _inboundStream;
@@ -34,8 +31,9 @@ namespace HttpToSocks5Proxy
 
         private static readonly HttpMethod s_connectMethod = new HttpMethod("CONNECT");
 
-        public HttpProxyProcessor(Stream inboundStream)
+        public HttpProxyProcessor2(Stream inboundStream, ITunnelFactory _tunnel)
         {
+            this._tunnel = _tunnel;
             //_tunnelFactory = tunnelFactory;
             _inboundStream = inboundStream;
         }
@@ -60,44 +58,45 @@ namespace HttpToSocks5Proxy
             }
         }
 
-        private ITunnelFactory? CreateITunel(string username)
-        {
-            if (username_ITunnel.ContainsKey(username))
-            {
-                return username_ITunnel[username];
-            }
-            ITunnelFactory _tunnelFactory = null;
-            if (Socks5Server.Socks5Mapping.TryGetValue(username, out var value))
-            {
-                if (IPAddress.TryParse(value.Address, out IPAddress ip2))
-                {
-                    var outboundEP = new IPEndPoint(ip2, value.Port);
-                    _tunnelFactory = new Socks5TunnelFactory(outboundEP);
-                }
-                else
-                {
-                    var outboundEP = new DnsEndPoint(value.Address, value.Port);
-                    _tunnelFactory = new Socks5TunnelFactory(outboundEP);
-                }
-                if (!string.IsNullOrEmpty(value.name))
-                {
-                    //Debug.WriteLine("创建一个 _tunnelFactory,"+value.Address+":"+value.Port+":"+value.name+":"+value.pass);
-                    ((Socks5TunnelFactory)_tunnelFactory).SetCredential(value.name + ":" + value.pass);
-                }
-            }
-            if(_tunnelFactory != null)
-            {
-                if(username_ITunnel.ContainsKey(username))
-                {
-                    username_ITunnel[username] = _tunnelFactory;
-                }
-                else
-                {
-                    username_ITunnel.Add(username, _tunnelFactory);
-                }
-            }
-            return _tunnelFactory;
-        }
+        //private ITunnelFactory? CreateITunel(string username)
+        //{
+            //if (username_ITunnel.ContainsKey(username))
+            //{
+            //    return username_ITunnel[username];
+            //}
+            //ITunnelFactory _tunnelFactory = null;
+            //if (Socks5Server.Socks5Mapping.TryGetValue(username, out var value))
+            //{
+            //    if (IPAddress.TryParse(value.Address, out IPAddress ip2))
+            //    {
+            //        var outboundEP = new IPEndPoint(ip2, value.Port);
+            //        _tunnelFactory = new Socks5TunnelFactory(outboundEP);
+            //    }
+            //    else
+            //    {
+            //        var outboundEP = new DnsEndPoint(value.Address, value.Port);
+            //        _tunnelFactory = new Socks5TunnelFactory(outboundEP);
+            //    }
+            //    if (!string.IsNullOrEmpty(value.name))
+            //    {
+            //        //Debug.WriteLine("创建一个 _tunnelFactory,"+value.Address+":"+value.Port+":"+value.name+":"+value.pass);
+            //        ((Socks5TunnelFactory)_tunnelFactory).SetCredential(value.name + ":" + value.pass);
+            //    }
+            //}
+            //if(_tunnelFactory != null)
+            //{
+            //    if(username_ITunnel.ContainsKey(username))
+            //    {
+            //        username_ITunnel[username] = _tunnelFactory;
+            //    }
+            //    else
+            //    {
+            //        username_ITunnel.Add(username, _tunnelFactory);
+            //    }
+            //}
+            //return _tunnelFactory;
+
+        //}
 
         public async Task RunAsync(CancellationToken cancellationToken)
         {
@@ -116,7 +115,7 @@ namespace HttpToSocks5Proxy
 
                     string username = "";
                     //Authenticate
-                    if (!Authenticate(parser.ProxyAuthorization,out username))
+                    if (!Authenticate(parser.ProxyAuthorization, out username))
                     {
                         if (parser.ProxyAuthorization is null)
                         {
@@ -126,25 +125,25 @@ namespace HttpToSocks5Proxy
                         await WriteForbiddenAsync(stream, cancellationToken).ConfigureAwait(false);
                         return;
                     }
-                    if (username == "")
-                    {
-                        await WriteForbiddenAsync(stream, cancellationToken).ConfigureAwait(false);
-                        return;
-                    }
-                    var _tunnelFactory=username_ITunnel.Where(it => it.Key == username).FirstOrDefault().Value;
-                    if (_tunnelFactory == null)
-                    {
-                        //读取创建
-                        _tunnelFactory= CreateITunel(username);
-                        if(_tunnelFactory == null)
-                        {
-                            await WriteForbiddenAsync(stream, cancellationToken).ConfigureAwait(false);
-                            return;
-                        }
-                    }
+                    //if (username == "")
+                    //{
+                    //    await WriteForbiddenAsync(stream, cancellationToken).ConfigureAwait(false);
+                    //    return;
+                    //}
+                    //var _tunnelFactory=username_ITunnel.Where(it => it.Key == username).FirstOrDefault().Value;
+                    //if (_tunnelFactory == null)
+                    //{
+                    //    //读取创建
+                    //    _tunnelFactory= CreateITunel(username);
+                    //    if(_tunnelFactory == null)
+                    //    {
+                    //        await WriteForbiddenAsync(stream, cancellationToken).ConfigureAwait(false);
+                    //        return;
+                    //    }
+                    //}
                     //var xx = ((Socks5TunnelFactory)_tunnelFactory)._endPoint.ToString();
                     //Debug.WriteLine("走代理：" + xx);
-                    
+
                     // Process CONNECT requests
                     if (parser.Method.Equals(s_connectMethod))
                     {
@@ -156,7 +155,7 @@ namespace HttpToSocks5Proxy
                        
                         try
                         {
-                            tunnel = await _tunnelFactory.CreateAsync(endPoint, cancellationToken).ConfigureAwait(false);
+                            tunnel = await _tunnel.CreateAsync(endPoint, cancellationToken).ConfigureAwait(false);
                         }
                         catch (Exception)
                         {
@@ -200,7 +199,7 @@ namespace HttpToSocks5Proxy
 
                         try
                         {
-                            tunnel = await _tunnelFactory.CreateAsync(endPoint, cancellationToken).ConfigureAwait(false);
+                            tunnel = await _tunnel.CreateAsync(endPoint, cancellationToken).ConfigureAwait(false);
                         }
                         catch (Exception)
                         {
@@ -225,6 +224,7 @@ namespace HttpToSocks5Proxy
                     disposable.Dispose();
                 }
             }
+            //Debug.WriteLine("HttpProxyProcessor2=====>close");
         }
 
         private static byte[] s_okResponse = Encoding.ASCII.GetBytes("HTTP/1.1 200 Connection Established\n\n");
@@ -271,7 +271,8 @@ namespace HttpToSocks5Proxy
         private bool Authenticate(string? proxyAuthentxation,out string username)
         {
             //都通过
-            //return true;
+            username = "";
+            return true;
             ReadOnlySpan<char> header = proxyAuthentxation.AsSpan().Trim();
             if (!header.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase))
             {
