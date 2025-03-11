@@ -1,26 +1,36 @@
 # XChrome Ãâ·Ñ¿ªÔ´µÄÖ¸ÎÆä¯ÀÀÆ÷
-![image](https://github.com/chanawudi/XChrome/blob/master/screenshot/1.png?raw=true)
-
-![image](https://github.com/chanawudi/XChrome/blob/master/screenshot/2.png?raw=true)
 
 ## --ÌØµã£¿--
-> Ãâ·Ñ£¬¿ªÔ´£¬Ö§³Ö¶ÀÁ¢´úÀí,Ö§³Ösocks5´úÀí£¨ÎŞĞè²å¼ş£©£¬Ö§³ÖÄ£Äâ¸÷ÖÖ²Ù×÷ÏµÍ³£¬¸÷chrome°æ±¾µÈÖ¸ÎÆĞÅÏ¢£¬Ö§³ÖÈº¿ØÒ»´ø¶à£¬Ö§³Ö½Å±¾ÔËĞĞ£¨¿ª·¢ÖĞ£©
-> ÔİÖ»Ö§³ÖwindowsÏµÍ³
+- > Ãâ·Ñ£¬¿ªÔ´ £¬ÔİÊ±Ö»Ö§³ÖwindowsÏµÍ³
+- > ×ÔÑĞµ×²ãchromeÁ´½Ó²ã£¬ÓÃÄã×Ô¼ºµçÄÔµÄchromeä¯ÀÀÆ÷£¬ÎŞĞèµ¥¶À°²×°ÑË¸î°æ£¬ÕâÑù»ù¶¼ÄÜ¹ı¸÷ÖÖÈË»úÑéÖ¤
+- > Ö§³Ö¶àÖ¸ÎÆÉèÖÃ£¬chrome°æ±¾£¬ÓïÑÔ£¬µØÇø£¬¶¨Î»£¬´¥ÆÁ£¬·Ö±æÂÊ µÈµÈ
+- > È«ÃæÖ§³Ö´úÀíÉèÖÃ£¬http£¬socks5 È«²¿Ö§³Ö£¬ÇÒÎŞĞè°²×°ä¯ÀÀÆ÷²å¼ş
+- > Ö§³ÖÈº¿Ø£¬²Ù×÷Ò»¸öä¯ÀÀÆ÷×Ô¶¯Í¬²½ÆäËûä¯ÀÀÆ÷£¬°üÀ¨²å¼şµÈ½»»¥²Ù×÷Ò²¿ÉÒÔÍ¬²½
+- > Ã¿¸ö»·¾³Ö§³ÖÖ¸¶¨×Ô¼ºµÄÊı¾İÄ¿Â¼£¬·½±ãÇ¨ÒÆÄãÒÑ¾­×öµÄ¶à¿ªºÍÆäËûÖ¸ÎÆä¯ÀÀÆ÷Êı¾İ
+- > Ö§³Ö½Å±¾×Ô¶¯»¯£¨¿ª·¢ÖĞ...£©
+- > Ö§³Öapi½Ó¿Ú£¨¿ª·¢ÖĞ...£©
+
+## --½ØÍ¼£¿--
+![image](https://github.com/chanawudi/XChrome/blob/master/screenshot/111.png?raw=true)
+
+![image](https://github.com/chanawudi/XChrome/blob/master/screenshot/222.png?raw=true)
+
+![image](https://github.com/chanawudi/XChrome/blob/master/screenshot/333.png?raw=true)
+
+![image](https://github.com/chanawudi/XChrome/blob/master/screenshot/444.png?raw=true)
+
 
 ## --¼òµ¥ÊÓÆµ½Ì³Ì£¿--
 >µã»÷²é¿´ÊÓÆµ£º£º[https://youtu.be/onD1OIQkdWM](https://youtu.be/onD1OIQkdWM)  
 >µã»÷²é¿´ÊÓÆµ£º£¨2025-03-05£©£º[https://www.youtube.com/watch?v=GVOz3VGF9Vs](https://www.youtube.com/watch?v=GVOz3VGF9Vs)
 
 
-## --°²×°²å¼ş£¿--
-![image](https://raw.githubusercontent.com/chanawudi/XChrome/refs/heads/master/screenshot/cj1.png)
-![image](https://raw.githubusercontent.com/chanawudi/XChrome/refs/heads/master/screenshot/cj2.png)
 
 ## --ÈçºÎÊ¹ÓÃ£¿--
 
 
 ### 1.Éµ¹ÏÊ¹ÓÃ
-È¥¹ÙÍø¡¾[http://www.web3tool.vip](http://www.web3tool.vip)¡¿ÏÂÔØ±àÒëºÃµÄÍêÕû³ÌĞò°ü£¬Ö±½ÓÔËĞĞ
+È¥¹ÙÍø¡¾[http://www.web3tool.vip](http://www.web3tool.vip)¡¿ÏÂÔØ±àÒëºÃµÄÍêÕû³ÌĞò°ü£¬Ö±½ÓÔËĞĞ£¬ÔËĞĞÌáÊ¾¸üĞÂ£¬Çë×Ô¶¯¸üĞÂµ½×îĞÂ°æ±¾
 > ³ÌĞòÒÀÀµ £¨ÓĞµÄÏµÍ³×Ô´ø£¬ÇëÏÈÔËĞĞ£¬Èç²»ĞĞÔÙ¿¼ÂÇÏÂÔØ£©£º
 Î¢Èí.net 8.0 ¿ò¼Ü£¬Èç²»ÄÜÔËĞĞ£¬Çëµ½ÏÂÔØµØÖ·ÏÂÔØ°²×°£º
 https://dotnet.microsoft.com/zh-cn/download/dotnet/8.0 £¬ÕÒµ½ÆäÖĞµÄ ¡¾.NET ×ÀÃæÔËĞĞÊ±¡¿
@@ -30,8 +40,6 @@ https://dotnet.microsoft.com/zh-cn/download/dotnet/8.0 £¬ÕÒµ½ÆäÖĞµÄ ¡¾.NET ×ÀÃæÔ
 
 ### 2.×ÔĞĞ±àÒë
 ÏÂÔØ¿ªÔ´³ÌĞò£¬ÓÃ Microsoft Visual Studio 2022 £¨°²×°µÄÊ±ºò¼ÇµÃ¹´Ñ¡.net 8.0×ÀÃæÖ§³Ö£© »òÒÔÉÏ°æ±¾±àÒë
-±àÒëºóÇëÏÂÔØ±ØÒª×é¼ş£¬½øĞĞ½âÑ¹£¬È»ºó°ÑÕû¸ö .playwright ÎÄ¼ş¼Ğ·Åµ½exe³ÌĞò¸ùÄ¿Â¼¼´¿É
-> ÏÂÔØ:https://wwuw.lanzoub.com/i6m3r2p2tw6h ÃÜÂë:bzmi
 
 
 
@@ -42,5 +50,6 @@ https://dotnet.microsoft.com/zh-cn/download/dotnet/8.0 £¬ÕÒµ½ÆäÖĞµÄ ¡¾.NET ×ÀÃæÔ
 ### Ğí¿ÉÖ¤£¨License£©
 
 ±¾ÏîÄ¿²ÉÓÃ [Creative Commons BY-NC 4.0 ¹ú¼ÊĞí¿ÉĞ­Òé](https://creativecommons.org/licenses/by-nc/4.0/deed.zh) ½øĞĞĞí¿É¡£  
+Äã¿É×ÔÓÉ¸´ÖÆ£¬ĞŞ¸Ä£¬·¢ĞĞ±¾ÏîÄ¿£» ½ûÖ¹ÓÃÓÚÉÌÒµÓÃÍ¾£¡
 ¾ßÌåÇë²ÎÔÄ [LICENSE](LICENSE) ÎÄ¼ş¡£
 [License](https://img.shields.io/badge/License-CC_BY--NC_4.0-lightgrey.svg)
