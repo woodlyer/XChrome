@@ -23,7 +23,7 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="40" />
-                        <RowDefinition Height="60" />
+                        <RowDefinition Height="75" />
                     </Grid.RowDefinitions>
                     <Label Content="chrome路径：" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" Grid.Column="0" Grid.Row="0"></Label>
                     <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
@@ -39,6 +39,7 @@
                         <TextBlock HorizontalAlignment="Left"  Width="589" Height="70" LineHeight="20"  Margin="10,10,0,5" >
 请输入自己chrome路径，目前只是最新chrome，建议用小于等于134版本（开发本软件时候的版本） <LineBreak/>
  类似：C:\Program Files\Google\Chrome\Application\chrome.exe），因版本差异，可能会有不稳定因素<LineBreak/>
+各老版本下载方式见社群公告或者github页面<LineBreak/>
                         </TextBlock>
                     </StackPanel>
                 </Grid>
