@@ -46,6 +46,16 @@ https://dotnet.microsoft.com/zh-cn/download/dotnet/8.0 £¬ÕÒµ½ÆäÖĞµÄ ¡¾.NET ×ÀÃæÔ
 ### 3.½øÈº½»Á÷
 > ½øÉçÇøÍ³Ò»ÏÈ½øQQÈº£¬È»ºó½»Á÷ÔÙÀ­Î¢ĞÅÈº £¬µ±Ç°QQÈº£º30286103 £¬¼ÓÈº±¸×¢£ºÖ¸ÎÆä¯ÀÀÆ÷
 
+### 4.ÆäËûÁ´½Ó
+¹ÙÍø£ºhttps://www.web3tool.vip/
+Github£ºhttps://github.com/chanawudi/XChrome
+ÍÆÌØ£ºhttps://x.com/chanawudi 
+Èç¹ûÄãÊ¹ÓÃ±¾Èí¼ş£¬¹Ø×¢/µãÔŞ/×ª·¢ÍÆÌØ£¬ÊÇ¶ÔÎÒ×î´óµÄÖ§³Ö
+
+¸üĞÂÈÕÖ¾£ºhttps://github.com/chanawudi/XChrome/blob/master/UpdateLog.md
+chrome¸÷°æ±¾ÏÂÔØ£ºhttps://github.com/chanawudi/XChrome/blob/master/ChromeDownLoad.md
+
+
 
 ### Ğí¿ÉÖ¤£¨License£©
 
