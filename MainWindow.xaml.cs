@@ -34,6 +34,8 @@ using XChrome.forms;
 using XChrome.cs;
 using AutoUpdaterDotNET;
 using XChrome.cs.xchrome;
+using System.Diagnostics;
+using XChrome.cs.tools.socks5;
 
 namespace XChrome
 {
@@ -58,44 +60,75 @@ namespace XChrome
         {
             if (MainWindow._mainWindow == null) return;
             if (MainWindow._mainWindow.notifier == null)  return;
-            MainWindow._mainWindow.notifier.ShowInformation(msg);
+            
+            try
+            {
+                MainWindow._mainWindow.notifier.ShowInformation(msg);
+            }
+            catch (Exception e) { }
         }
         public static void Toast_Success(string msg)
         {
             if (MainWindow._mainWindow == null) return;
             if (MainWindow._mainWindow.notifier == null) return;
-            MainWindow._mainWindow.notifier.ShowSuccess(msg);
+            
+            try
+            {
+                MainWindow._mainWindow.notifier.ShowSuccess(msg);
+            }
+            catch (Exception e) { }
         }
         public static void Toast_Warning(string msg)
         {
             if (MainWindow._mainWindow == null) return;
             if (MainWindow._mainWindow.notifier == null) return;
-            MainWindow._mainWindow.notifier.ShowWarning(msg);
+            
+            try
+            {
+                MainWindow._mainWindow.notifier.ShowWarning(msg);
+            }
+            catch (Exception e) { }
         }
         public static void Toast_Error(string msg)
         {
             if (MainWindow._mainWindow == null) return;
             if (MainWindow._mainWindow.notifier == null) return;
-            MainWindow._mainWindow.notifier.ShowError(msg);
+            try
+            {
+                MainWindow._mainWindow.notifier.ShowError(msg);
+            }catch(Exception e) { }
+            
         }
 
 
         private void CreateNotifier()
         {
-            notifier = new Notifier(cfg =>
+            try
             {
-                cfg.PositionProvider = new WindowPositionProvider(
-                    parentWindow: Application.Current.MainWindow,
-                    corner: Corner.BottomCenter,
-                    offsetX: 10,
-                    offsetY: 10);
+                Dispatcher.Invoke(() =>
+                {
+                    notifier = new Notifier(cfg =>
+                    {
+                        cfg.PositionProvider = new WindowPositionProvider(
+                            parentWindow: Application.Current.MainWindow,
+                            corner: Corner.BottomCenter,
+                            offsetX: 10,
+                            offsetY: 10);
 
-                cfg.LifetimeSupervisor = new TimeAndCountBasedLifetimeSupervisor(
-                    notificationLifetime: TimeSpan.FromSeconds(3),
-                    maximumNotificationCount: MaximumNotificationCount.FromCount(5));
+                        cfg.LifetimeSupervisor = new TimeAndCountBasedLifetimeSupervisor(
+                            notificationLifetime: TimeSpan.FromSeconds(3),
+                            maximumNotificationCount: MaximumNotificationCount.FromCount(5));
 
-                cfg.Dispatcher = Application.Current.Dispatcher;
-            });
+                        cfg.Dispatcher = Application.Current.Dispatcher;
+                    });
+
+                });
+                
+            } catch (Exception ev)
+            {
+                Debug.WriteLine("[Mainwindow.xaml][CreateNotifier]:" + ev.Message);
+            }
+            
         }
 
 
@@ -145,9 +178,11 @@ namespace XChrome
                 await cs.Config.ini();
                 //启动jobermanager
                 cs.JoberManager.Start();
-                //启动socks5
-                if(!IsDebug)
-                    cs.tools.socks5.Socks5Server.Start(cts.Token);
+                //欢迎页
+                cs.zchrome.WelComePage.Start(cts.Token);
+               
+               
+                
 
                 await Task.Delay(500);
             };
@@ -169,7 +204,7 @@ namespace XChrome
             //关闭控制器
             cs.MouseHookServer.UnIni();
             //
-            cs.tools.socks5.Socks5Server.Stop();
+            cs.zchrome.WelComePage.Stop();
 
             _mainWindow = null;
         }
@@ -336,6 +371,8 @@ namespace XChrome
         /// <param name="e"></param>
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            ListBoxItem lb = ((ListBox)sender).SelectedItem as ListBoxItem;
+            if (lb == null) return;
             var index = ((ListBox)sender).SelectedIndex;
             if(index == 0)
             {
@@ -347,7 +384,7 @@ namespace XChrome
                 MainFrame_other.Visibility = Visibility.Visible;
                 MainFrame_main.Visibility = Visibility.Hidden;
             }
-            ListBoxItem lb=((ListBox)sender).SelectedItem as ListBoxItem;
+            
             string tag=lb.Tag?.ToString()??"";
             switch (tag) { 
                 case "chrome":

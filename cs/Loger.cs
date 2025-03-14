@@ -26,17 +26,16 @@ namespace XChrome.cs
         private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
 
-        public static void InfoException(Exception ev)
+        public static void ErrException(Exception ev)
         {
-            Loger.Info(ev.Message);
-            Loger.Info(ev.StackTrace ?? "");
+            Loger.Err(ev.Message);
+            Loger.Err(ev.StackTrace ?? "");
             if (ev.InnerException != null)
             {
-                Loger.Info("---------------------------------");
-                Loger.Info(ev.InnerException.Message ?? "");
-                Loger.Info(ev.InnerException.StackTrace ?? "");
+                Loger.Err("---------------------------------");
+                Loger.Err(ev.InnerException.Message ?? "");
+                Loger.Err(ev.InnerException.StackTrace ?? "");
             }
-
         }
         public static void Err(string message)
         {

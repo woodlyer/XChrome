@@ -26,27 +26,43 @@ namespace XChrome.cs.tools.socks5
         int out_Port;
         string out_name;
         string out_pass;
-        public async Task<Proxy2ProxyServer> Start(string key, string protocol, string Address, int Port, string name, string pass, CancellationToken cancellationToken)
+        public async Task<int?> Start(string key, string protocol, string Address, int Port, string name, string pass, CancellationToken cancellationToken)
         {
+
+            ///如果不是socks5，用其他类处理
+            if (protocol != "socks5")
+            {
+
+                var h2h=new Http2Http(Address, Port,name,pass);
+                int? port= await h2h.StartAndGetPort(_lock, cancellationToken);
+                return port;
+            }
+
+
+
 
             ITunnelFactory _tunnelFactory = null;
             if (IPAddress.TryParse(Address, out IPAddress ip2))
             {
                 var outboundEP = new IPEndPoint(ip2, Port);
                 _tunnelFactory = new Socks5TunnelFactory(outboundEP);
+              
             }
             else
             {
                 var outboundEP = new DnsEndPoint(Address, Port);
                 _tunnelFactory = new Socks5TunnelFactory(outboundEP);
-            } 
-            ((Socks5TunnelFactory)_tunnelFactory).SetCredential(name + ":" + pass);
+            }
+            if (protocol== "socks5" && name != "")
+            {
+                ((Socks5TunnelFactory)_tunnelFactory).SetCredential(name + ":" + pass);
+            }
+            
                 
             
 
             await Task.Run(async () =>
             {
-
                 while (true)
                 {
                     if (cancellationToken.IsCancellationRequested)
@@ -58,14 +74,12 @@ namespace XChrome.cs.tools.socks5
                     {
                         cs.Config.ProxySocks5Server_Port++;
                         port = cs.Config.ProxySocks5Server_Port;
-                        if (port > 11666)
+                        if (port > 15666)
                         {
                             cs.Config.ProxySocks5Server_Port = 10666;
                             port = cs.Config.ProxySocks5Server_Port;
                         }
                     }
-                    
-
                     string url = "http://[::]:" + port;
                     Uri.TryCreate(url, UriKind.Absolute, out Uri? inboundUri);
                     IPAddress.TryParse(inboundUri.Host, out IPAddress ip);
@@ -105,7 +119,7 @@ namespace XChrome.cs.tools.socks5
             });
 
 
-            return this;
+            return this.localPort;
         }
     }
 
@@ -135,9 +149,9 @@ namespace XChrome.cs.tools.socks5
         {
             string key = protocol+","+Address+","+Port+","+name+","+pass;
             //判断这个端口是否存在
-            Proxy2ProxyServer? _server = await new Proxy2ProxyServer().Start(key, protocol, Address, Port, name, pass, cancellationToken);
+            int? port = await new Proxy2ProxyServer().Start(key, protocol, Address, Port, name, pass, cancellationToken);
           
-            return _server.localPort;
+            return port??0;
         }
 
 

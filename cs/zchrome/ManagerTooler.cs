@@ -129,18 +129,26 @@ namespace XChrome.cs.zchrome
         }
         public (string protocol, string Address, int Port, string name, string pass)? getProxy2(string proxy)
         {
-            if (!proxy.StartsWith("http") && !proxy.StartsWith("socks5"))
+            try
             {
-                proxy = "http://" + proxy;
-                //var _proxy = new Proxy();
-                string[] pp = proxy.Split(":");
-                return (pp[0], pp[1].Replace("//", ""),Convert.ToInt32(pp[2]), pp.Length>3? pp[3]:"",pp.Length>4? pp[4]:"");
-            }else if (proxy.StartsWith("socks5"))
-            {
-                string[] pp = proxy.Split(":");
-                return (pp[0], pp[1].Replace("//", ""), Convert.ToInt32(pp[2]), pp.Length > 3 ? pp[3] : "", pp.Length > 4 ? pp[4] : "");
+                if (!proxy.StartsWith("http") && !proxy.StartsWith("socks5"))
+                {
+                    proxy = "http://" + proxy;
+                    //var _proxy = new Proxy();
+                    string[] pp = proxy.Split(":");
+                    return (pp[0], pp[1].Replace("//", ""), Convert.ToInt32(pp[2]), pp.Length > 3 ? pp[3] : "", pp.Length > 4 ? pp[4] : "");
+                }
+                else if (proxy.StartsWith("socks5"))
+                {
+                    string[] pp = proxy.Split(":");
+                    return (pp[0], pp[1].Replace("//", ""), Convert.ToInt32(pp[2]), pp.Length > 3 ? pp[3] : "", pp.Length > 4 ? pp[4] : "");
+                }
+                return null;
+            }catch(Exception ev) {
+                cs.Loger.ErrException(ev);
+                return null; 
             }
-            return null;
+            
         }
 
         //public string  
@@ -225,6 +233,10 @@ namespace XChrome.cs.zchrome
 
             return list;
         }
+
+
+
+
 
     }
 }

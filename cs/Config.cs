@@ -70,6 +70,10 @@ namespace XChrome.cs
         /// socks5转发本地服务端口，如果占用，会自动加1启动
         /// </summary>
         public static int ProxySocks5Server_Port = 10666;
+        /// <summary>
+        /// 欢迎页的端口
+        /// </summary>
+        public static int WellComePagePort = 5678;
         public static async Task ini()
         {
             if (!System.IO.Path.Exists(chrome_data_path)) { Directory.CreateDirectory(chrome_data_path); }

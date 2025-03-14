@@ -7,6 +7,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Security.Policy;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -70,6 +71,7 @@ namespace XChrome.cs.zchrome
         }
 
 
+        //https://dl.google.com/edgedl/chrome-enterprise/browser/134.0.6998.89/chromeinstall-134.0.6998.89.exe
 
         private static int GetPort()
         {
@@ -140,6 +142,7 @@ namespace XChrome.cs.zchrome
         private string _injectJS;
         private XChromeClient _xchrome;
         private bool _isHomePageInjSuccess = false;
+        private string _HomePageSession = "";
 
         /// <summary>
         /// 当检测到新页面创建时触发，对应 Target.targetCreated 事件
@@ -190,15 +193,6 @@ namespace XChrome.cs.zchrome
         public async Task<(bool isSuccess,string errMsg)> LaunchChromeAsync(string chromePath, string userDataDir,XChromeClient xchrome, FingerprintConfig finger, string extraArguments = "")
         {
             _xchrome = xchrome; 
-            //PageCreated += (p) =>
-            //{
-
-            //};
-            //PageClosed += (p) =>
-            //{
-
-            //};
-
             await SetFingerprintAsync(finger);
 
 
@@ -216,17 +210,43 @@ namespace XChrome.cs.zchrome
             string proxy = "";
             if (finger.proxy != "")
             {
-                var pp=ZChromeManager.Instance._ManagerTooler.getProxy2(finger.proxy);
-                if (pp != null) {
-                    int portt= await Proxy2ProxyPools.AddMapping_BackLocalPort(pp.Value.protocol, pp.Value.Address, pp.Value.Port, pp.Value.name, pp.Value.pass, CancellationTokenSource_proxy_server.Token);
-                    Debug.WriteLine("端口===" + portt);
-                    proxy = "--proxy-server=\"http=127.0.0.1:"+ portt + ";https=127.0.0.1:"+ portt + "\"";
+                var pp = ZChromeManager.Instance._ManagerTooler.getProxy2(finger.proxy);
+                if (pp != null)
+                {
+                    if (pp.Value.protocol!="socks5" && pp.Value.name == "")
+                    {
+                        //普通不带密码的http，直接启动参数
+                        string pstr = pp.Value.Address + ":" + pp.Value.Port;
+                        proxy = $"--proxy-server=\"http={pstr};https={pstr}\"";
+                    }
+                    else
+                    {
+                        int portt = await Proxy2ProxyPools.AddMapping_BackLocalPort(pp.Value.protocol, pp.Value.Address, pp.Value.Port, pp.Value.name, pp.Value.pass, CancellationTokenSource_proxy_server.Token);
+                        Debug.WriteLine("代理转发端口端口===" + portt);
+                        proxy = "--proxy-server=\"http=127.0.0.1:" + portt + ";https=127.0.0.1:" + portt + "\"";
+                    }
+                   
+                }
+                else
+                {
+                    MainWindow.Toast_Error("代理配置有问题，是否格式错误？");
                 }
             }
 
-            string postion = $"--window-position={xchrome.StartLeft},{xchrome.StartTop} --window-size={xchrome.StartWidth},{xchrome.StartHeight}";
+            //默认插件
+            string expath = new XChromeExtension(xchrome.DataPath, xchrome.Id.ToString()).ExtensionPath;
+            string ex = $"--load-extension={expath}";
 
-            string args = $"--remote-debugging-port={port} --new-window --user-data-dir=\"{userDataDir}\" {postion} {proxy} {extraArguments}";
+            //其他参数
+            string startpage ="--new-window http://localhost:"+cs.Config.WellComePagePort;
+            string NetworkService = "";// "--enable-features=NetworkService --enable-features=NetworkServiceInProcess2"; //--ignore-certificate-errors
+            string postion = $"--window-position={xchrome.StartLeft},{xchrome.StartTop} --window-size={xchrome.StartWidth},{xchrome.StartHeight}";
+            extraArguments += $"--disable-popup-blocking --disable-features=SessionRestore,CrashRestoreBubble --force-session-resume=0 --no-default-browser-check --disable-component-update";
+            //默认组件
+            extraArguments += " --disable-default-apps --disable-component-update --disable-features=PreinstalledApps";
+            
+            string args = $"--remote-debugging-port={port} {ex} {startpage} --no-first-run {NetworkService} --no-default-browser-check --user-data-dir=\"{userDataDir}\" {postion} {proxy} {extraArguments}";
+            Debug.WriteLine("启动参数："+args);
             var startInfo = new ProcessStartInfo(chromePath, args)
             {
                 UseShellExecute = false,
@@ -273,13 +293,9 @@ namespace XChrome.cs.zchrome
             _=Task.Run(async () =>
             {
                 _webSocketDebuggerUrl = isDebugInterfaceReady.socketurl;
-                //Log("zzzz33:"+sw.ElapsedMilliseconds+" 毫秒");
                 Log?.Invoke($"Debugger URL: {_webSocketDebuggerUrl}");
-                //sw.Restart();
                 // 连接到调试 WebSocket
                 _wsClient = new ZWebSocket();
-                //sw.Restart() ;
-                //Log("zzzz4.5：" + sw.ElapsedMilliseconds + " 毫秒");
                 _wsClient.MessageReceived += OnMessageReceived;
                 _wsClient.Error += (ex) => {
                     //关闭
@@ -296,37 +312,30 @@ namespace XChrome.cs.zchrome
 
                 //自动附加
                 await SetAutoAttachAsync();
-
-
-                //获得第一个target ,打开首页
-                var res = await SendCommandAsync("Target.getTargets");
-                if (!res.isSuccess)
-                {
-                    cs.Loger.Err(res.errmsg ?? "");
-                    //return (false, res.errmsg ?? "");
-                    return;
-                }
-                var jj = Newtonsoft.Json.JsonConvert.DeserializeObject(res.json.Value.ToString()) as JObject;
-                var tid = jj["targetInfos"][0]["targetId"].ToString();
-                //await Task.Delay(2000);
-                int timeoutnum = 100;
+                
+                int timeoutnum = 1000;
                 while (!_isHomePageInjSuccess)
                 {
                     await Task.Delay(100);
                     timeoutnum--;
                     if (timeoutnum == 0) { break; }
                 }
-                await SendCommandAsync("Page.navigate", new { url = "https://www.web3tool.vip/browser?id=" + xchrome.Id + "&u=" + cs.Config.userid }, _sessionMap[tid]);
 
+                //await SetNetworkEnable(_sessionMap[tid]);
+                if (_HomePageSession != "")
+                {
+                    try
+                    {
+                        await SendCommandAsync("Page.navigate", new { url = "https://www.web3tool.vip/browser?id=" + xchrome.Id + "&u=" + cs.Config.userid }, _HomePageSession);
+                    }catch(Exception ev)
+                    {
+                        cs.Loger.ErrException(ev);
+                    }
+                    
+                }
 
             });
             
-            
-            
-
-            
-            
-
             
             return (true, "");
         }
@@ -363,8 +372,10 @@ namespace XChrome.cs.zchrome
                             return (true, _webSocketDebuggerUrl);
                         }
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
+                        Debug.WriteLine("WaitForChromeDevToolsAsync:err:" + e.Message);
+                        int x = 0;
                         // 请求失败（可能 Chrome 还没启动），等待下一次轮询
                     }
                     await Task.Delay(pollingInterval);
@@ -395,6 +406,32 @@ namespace XChrome.cs.zchrome
             await _wsClient.SendMessageAsync(messageJson);
 
             Log?.Invoke("自动附加成功！");
+        }
+
+        private async Task SetNetworkEnable(string sessionid)
+        {
+            
+            var x=await SendCommandAsync("Network.enable", null, sessionId: sessionid);
+            Log?.Invoke("Network.enable成功！");
+
+
+            //return;
+
+            var pp = new
+            {
+                patterns = new[]
+                    {
+                        new
+                        {
+                            urlPattern = "*",
+                            //requestStage = "Request",
+                            handleAuthRequests=true
+                        }
+                    }
+            };
+            var yy=await SendCommandAsync("Fetch.enable", pp, sessionId: sessionid);
+            Log?.Invoke("Fetch.enable！");
+
         }
 
         /// <summary>
@@ -612,6 +649,7 @@ namespace XChrome.cs.zchrome
                         {
                             case "Target.attachedToTarget":
                                 {
+                                   
                                     // 当一个新 target 被自动 attach 时，下发此事件。
                                     if (root.TryGetProperty("params", out JsonElement paramsElement))
                                     {
@@ -621,49 +659,63 @@ namespace XChrome.cs.zchrome
                                         string type = targetInfo.GetProperty("type").GetString();
                                         _sessionMap[targetId] = sessionId;
                                         Log?.Invoke($"Attached to target: {targetId} with sessionId: {sessionId}");
+                                        
+                                        Debug.WriteLine(paramsElement.ToString());
                                         if (type == "page")
                                         {
-                                            await SendCommandAsync("Page.enable", null, sessionId: sessionId);
+                                            var xyz=await SendCommandAsync("Page.enable", null, sessionId: sessionId);
+                                            Debug.WriteLine("pageenable结果："+xyz.ToString());
+
+                                            await SendCommandAsync("Runtime.runIfWaitingForDebugger", null, sessionId: sessionId);
                                         }
                                         
-
+                                        if(targetInfo.TryGetProperty("url",out var urlj)){
+                                            string url = urlj.ToString();
+                                            if (url.StartsWith("http://localhost:"))
+                                            {
+                                                _HomePageSession = sessionId;
+                                                _isHomePageInjSuccess = true;
+                                                //break;
+                                            }
+                                        }
 
                                         // 针对新附加的 target，优先应用指纹配置（若已设置）
                                         if (_fingerprintConfig != null)
                                         {
-                                            if (_fingerprintConfig.Local != "")
-                                            {
-                                                //await SendCommandAsync("Emulation.setLocaleOverride", parameters: new { locale = _fingerprintConfig.Local }, sessionId: sessionId);
-                                                
-                                            }
+                                            //if (_fingerprintConfig.Local != "")
+                                            //{
+                                            //    //await SendCommandAsync("Emulation.setLocaleOverride", parameters: new { locale = _fingerprintConfig.Local }, sessionId: sessionId);
+
+                                            //}
                                             if (_fingerprintConfig.TimezoneId != "")
                                             {
                                                 await SendCommandAsync("Emulation.setTimezoneOverride", parameters: new { timezoneId = _fingerprintConfig.TimezoneId }, sessionId: sessionId);
                                             }
                                             if (_fingerprintConfig.HasTouch)
                                             {
-                                                await SendCommandAsync("Emulation.setTouchEmulationEnabled", parameters: new { enabled = true}, sessionId: sessionId);
+                                                await SendCommandAsync("Emulation.setTouchEmulationEnabled", parameters: new { enabled = true }, sessionId: sessionId);
                                             }
 
                                             if (_fingerprintConfig.Latitude != 0)
                                             {
-                                                await SendCommandAsync("Emulation.setGeolocationOverride", parameters: new { latitude = _fingerprintConfig.Latitude, longitude=_fingerprintConfig.Longitude, accuracy=1 }, sessionId: sessionId);
+                                                await SendCommandAsync("Emulation.setGeolocationOverride", parameters: new { latitude = _fingerprintConfig.Latitude, longitude = _fingerprintConfig.Longitude, accuracy = 1 }, sessionId: sessionId);
                                             }
                                             //js
-                                            await SendCommandAsync("Page.addScriptToEvaluateOnNewDocument", parameters: new { 
-                                                source = ZChromeManager.Instance._ManagerCache.GetInitScript(_fingerprintConfig.Local, _fingerprintConfig.HasTouch) 
+                                            await SendCommandAsync("Page.addScriptToEvaluateOnNewDocument", parameters: new
+                                            {
+                                                source = ZChromeManager.Instance._ManagerCache.GetInitScript(_fingerprintConfig.Local, _fingerprintConfig.HasTouch, _xchrome.Id.ToString())
                                             }, sessionId: sessionId);
 
                                             await SetUserAgentOverrideAsync(_fingerprintConfig.UserAgent, targetId);
-                                            await SetDeviceMetricsOverrideAsync(_fingerprintConfig.Width, _fingerprintConfig.Height, _fingerprintConfig.DeviceScaleFactor, _fingerprintConfig.Mobile,targetId);
-                                            
-                                            if (_fingerprintConfig.ExtraHTTPHeaders!=null && _fingerprintConfig.ExtraHTTPHeaders.Count>0)
+                                            await SetDeviceMetricsOverrideAsync(_fingerprintConfig.Width, _fingerprintConfig.Height, _fingerprintConfig.DeviceScaleFactor, _fingerprintConfig.Mobile, targetId);
+
+                                            if (_fingerprintConfig.ExtraHTTPHeaders != null && _fingerprintConfig.ExtraHTTPHeaders.Count > 0)
                                             {
                                                 //var headers = new { AcceptLanguage = _fingerprintConfig.Language };
-                                                await SendCommandAsync("Network.setExtraHTTPHeaders", _fingerprintConfig.ExtraHTTPHeaders, sessionId:sessionId);
+                                                await SendCommandAsync("Network.setExtraHTTPHeaders", _fingerprintConfig.ExtraHTTPHeaders, sessionId: sessionId);
                                             }
 
-                                            _isHomePageInjSuccess = true;
+                                            
 
                                            
 
@@ -714,8 +766,68 @@ namespace XChrome.cs.zchrome
                                     }
                                     break;
                                 }
+                            case "Network.authRequired":
+
+                                int xx = 0;
+                                break;
+                            case "Fetch.requestPaused":
+                                var paramsElement1 = root.GetProperty("params");
+                                var requestId = paramsElement1.GetProperty("requestId").GetString();
+                                if (paramsElement1.TryGetProperty("authChallenge",out JsonElement authc))
+                                {
+                                    var pp = new
+                                    {
+                                        requestId,
+                                        authChallengeResponse = new
+                                        {
+                                            response = "ProvideCredentials",
+                                            username = "svipceshi",
+                                            password = "svipceshi"
+                                        }
+                                        //,
+                                        //headers = new[]
+                                        //    {
+                                        //        new
+                                        //        {
+                                        //            name = "Proxy-Authorization",
+                                        //            value = "Basic " + Convert.ToBase64String(
+                                        //                Encoding.UTF8.GetBytes($"svipceshi:svipceshi"))
+                                        //        }
+                                        //    }
+                                    };
+                                    var yyx = await SendCommandAsync("Fetch.continueRequest", pp, sessionId: _sessionMap[_sessionMap.Keys.FirstOrDefault()]);
+                                    Debug.WriteLine("-----------");
+                                    Debug.WriteLine(yyx.ToString());
+                                }
+                                else
+                                {
+                                    var yyx = await SendCommandAsync("Fetch.continueRequest", new
+                                    {
+                                        requestId
+                                    }, sessionId: _sessionMap[_sessionMap.Keys.FirstOrDefault()]);
+                                    Debug.WriteLine("2222-----------");
+                                    Debug.WriteLine(yyx.ToString());
+                                }
+                                
+                                
+                                break;
+                            case "Fetch.authRequired":
+
+                                break;
+                            //case "Page.windowOpen":
+                            //    var parameters = root.GetProperty("params");
+                            //    var url = parameters.GetProperty("url").GetString();
+                            //    var sesid = root.GetProperty("sessionId").GetString();
+                            //    Debug.WriteLine($"WindowOpen event received for URL: {url}");
+
+                            //    // 发送Browser.createTarget命令
+                            //    var yyxv = await SendCommandAsync("Page.navigate", new { url = url }, sessionId: sesid);
+
+
+                            //    break;
                             default:
                                 {
+                                    //if(methodName.StartsWith("Network"))
                                     // 其它事件作为日志输出
                                     Log?.Invoke("Event [" + methodName + "] received: " + message);
                                     break;

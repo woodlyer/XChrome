@@ -160,6 +160,11 @@ namespace XChrome.cs.zchrome
             var zchrome =await CreateZChromeClient(xchrome);
             //指纹
             var fing = await CreateFingerprintConfig(xchrome);
+            if (fing == null)
+            {
+                MainWindow.Toast_Error("初始化指纹错误，请详见logs文件夹日志");
+                return;
+            }
             // chrome 路径
             string chrome_exePath = GetChromeExePath();
             try
@@ -174,7 +179,7 @@ namespace XChrome.cs.zchrome
                 _ManagerCache?.SetXchrome(xchrome.Id, xchrome);
             }
             catch (Exception ex) {
-                cs.Loger.Err(ex.Message);
+                cs.Loger.ErrException(ex);
                 MainWindow.Toast_Error(ex.Message);
             }
             
@@ -199,7 +204,7 @@ namespace XChrome.cs.zchrome
             xchrome.ZChromeClient = zchrome;
 
             // 订阅日志和各种事件
-            //zchrome.Log += (msg) => Debug.WriteLine("[Log] " + msg);
+            zchrome.Log += (msg) => Debug.WriteLine("[Log] " + msg);
 
             //关闭socket链接的时候
             zchrome.ChromeClose += (id) =>
@@ -218,24 +223,32 @@ namespace XChrome.cs.zchrome
         }
 
 
-        private async Task<FingerprintConfig> CreateFingerprintConfig(XChromeClient xchrome)
+        private async Task<FingerprintConfig?> CreateFingerprintConfig(XChromeClient xchrome)
         {
             // 设置浏览器指纹伪装参数，例如自定义 User-Agent、分辨率和语言
-            JObject evnJ = JObject.Parse(string.IsNullOrEmpty(xchrome.Evns) ? "{}" : xchrome.Evns);
-            bool ismobile = Convert.ToBoolean(evnJ["IsMobile"]?.ToString() ?? "false");
-            var fingerprint = new FingerprintConfig
+            try
             {
-                UserAgent = xchrome.UserAgent,
-                Local = evnJ["Locale"]?.ToString() ?? "",
-                TimezoneId = evnJ["TimezoneId"]?.ToString() ?? "",
-                Mobile = ismobile,
-                HasTouch = ismobile || Convert.ToBoolean(evnJ["HasTouch"]?.ToString() ?? "false"),
-                Latitude = evnJ["Geolocation"] == null ? 0 : ((float)Convert.ToDecimal(evnJ["Geolocation"]["Latitude"].ToString())),
-                Longitude = evnJ["Geolocation"] == null ? 0 : ((float)Convert.ToDecimal(evnJ["Geolocation"]["Longitude"].ToString())),
-                ExtraHTTPHeaders = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(evnJ["ExtraHTTPHeaders"].ToString()),
-                proxy = xchrome.Proxy,
-            };
-            return fingerprint;
+                JObject evnJ = JObject.Parse(string.IsNullOrEmpty(xchrome.Evns) ? "{}" : xchrome.Evns);
+                bool ismobile = Convert.ToBoolean(evnJ["IsMobile"]?.ToString() ?? "false");
+                var fingerprint = new FingerprintConfig
+                {
+                    UserAgent = xchrome.UserAgent,
+                    Local = evnJ["Locale"]?.ToString() ?? "",
+                    TimezoneId = evnJ["TimezoneId"]?.ToString() ?? "",
+                    Mobile = ismobile,
+                    HasTouch = ismobile || Convert.ToBoolean(evnJ["HasTouch"]?.ToString() ?? "false"),
+                    Latitude = evnJ["Geolocation"] == null ? 0 : ((float)Convert.ToDecimal(evnJ["Geolocation"]["Latitude"].ToString())),
+                    Longitude = evnJ["Geolocation"] == null ? 0 : ((float)Convert.ToDecimal(evnJ["Geolocation"]["Longitude"].ToString())),
+                    ExtraHTTPHeaders = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(evnJ["ExtraHTTPHeaders"].ToString()),
+                    proxy = xchrome.Proxy,
+                };
+                return fingerprint;
+            }catch(Exception eev)
+            {
+                cs.Loger.ErrException(eev);
+                return null;
+            }
+            
         }
 
         private string GetChromeExePath()

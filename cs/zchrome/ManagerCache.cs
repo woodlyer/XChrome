@@ -109,10 +109,10 @@ namespace XChrome.cs.zchrome
 
         public string GetInitScript()
         {
-            return @"";
+            return @""; 
         }
 
-        public string GetInitScript(string local="",bool isTouch=false)
+        public string GetInitScript(string local="",bool isTouch=false,string id="")
         {
             string js = "";
             if (local != "")
@@ -150,7 +150,45 @@ Object.defineProperty(navigator, 'maxTouchPoints', {{
   }}
 ";
             }
+            return js;
+            if (id != "")
+            {
+                //修改title
+                js += @"
 
+// 定义一个全局内部变量保存标题
+var _internalTitle = document.title;
+
+// 修改 document.title 的 getter 与 setter
+Object.defineProperty(document, 'title', {
+  configurable: true,
+  enumerable: true,
+  get: function () {
+    return _internalTitle;
+  },
+  set: function (newTitle) {
+    if (!newTitle.startsWith(""[MY] "")) {
+      newTitle = ""[MY] "" + newTitle;
+    }
+    _internalTitle = newTitle;
+    var titleElement = document.querySelector('title');
+    if (titleElement) {
+      titleElement.textContent = newTitle;
+    } else {
+      titleElement = document.createElement('title');
+      titleElement.textContent = newTitle;
+      document.head.appendChild(titleElement);
+    }
+  }
+});
+
+// 触发 setter 处理初始标题
+document.title = document.title;
+
+console.log(""Injection using top-level code via Object.defineProperty complete"");
+
+";
+            }
             return js;
 
             js += @"

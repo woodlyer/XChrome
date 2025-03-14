@@ -157,7 +157,7 @@ namespace HttpToSocks5Proxy
                         {
                             tunnel = await _tunnel.CreateAsync(endPoint, cancellationToken).ConfigureAwait(false);
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
                             tunnel = null;
                         }
@@ -201,7 +201,7 @@ namespace HttpToSocks5Proxy
                         {
                             tunnel = await _tunnel.CreateAsync(endPoint, cancellationToken).ConfigureAwait(false);
                         }
-                        catch (Exception)
+                        catch (Exception e2 )
                         {
                             tunnel = null;
                         }

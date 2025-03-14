@@ -303,6 +303,7 @@ namespace HttpToSocks5Proxy
 
         private async Task<bool> AuthenticateAsync(IDuplexPipe pipe, byte[] authenticationPacket, CancellationToken cancellationToken)
         {
+            //return true;
             // Send authentication request
             WriteAuthenticationRequest(pipe.Output, authenticationPacket);
             await pipe.Output.FlushAsync(cancellationToken);

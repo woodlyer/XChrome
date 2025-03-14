@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net.Sockets;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -19,31 +22,19 @@ namespace XChrome.cs
 
             return true;
 
-            Debug.WriteLine("77777");
-            //=======开发测试=======
-            using(var job=new ZJob())
-            {
-                Debug.WriteLine("88888");
-                await testZChrome(job);
+            // 忽略 HTTPS 证书验证（这会使所有 SSL 连接直接通过验证，用在某些 HTTPS 证书有问题的场景）
+            
 
-                await Task.Run(async () => { 
-                    await Task.Delay(100000000);
-                });
-            }
 
 
 
             return false;
         }
 
+      
+      
 
-        private static async Task testZChrome(ZJob job)
-        {
-            // 实例化 ChromeDevToolsClient
-  
-
-            return;
-        }
+        
 
     }
 }

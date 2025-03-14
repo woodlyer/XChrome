@@ -78,23 +78,7 @@ namespace HttpToSocks5Proxy
                 return;
             }
             
-            using (var ns = new NetworkStream(socket, ownsSocket: true))
-            {
-                var processor =new HttpProxyProcessor(ns);
-                if (!(_authorization is null))
-                {
-                    processor.SetCredential(_authorization);
-                }
-                try
-                {
-                    await processor.RunAsync(cancellationToken);
-                }
-                catch (Exception)
-                {
-                    // Ignore
-                }
-
-            }
+           
         }
     }
 }

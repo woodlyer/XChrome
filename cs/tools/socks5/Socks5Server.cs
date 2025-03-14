@@ -88,48 +88,48 @@ namespace XChrome.cs.tools.socks5
             }
 
 
-            Task.Run(async () =>
-            {
+            //Task.Run(async () =>
+            //{
                 
-                while (true)
-                {
-                    int port = cs.Config.ProxySocks5Server_Port;
-                    string url = "http://user1:pass1@[::]:" + port;
-                    Uri.TryCreate(url, UriKind.Absolute, out Uri? inboundUri);
-                    IPAddress.TryParse(inboundUri.Host, out IPAddress ip);
-                    IPEndPoint inboundEP = new IPEndPoint(ip, inboundUri.Port);
+            //    while (true)
+            //    {
+            //        int port = cs.Config.ProxySocks5Server_Port;
+            //        string url = "http://user1:pass1@[::]:" + port;
+            //        Uri.TryCreate(url, UriKind.Absolute, out Uri? inboundUri);
+            //        IPAddress.TryParse(inboundUri.Host, out IPAddress ip);
+            //        IPEndPoint inboundEP = new IPEndPoint(ip, inboundUri.Port);
 
-                    var listener = new HttpProxyListener(inboundEP, 0);
-                    try
-                    {
-                        await listener.RunAsync(cancellationToken);
-                        break;
-                    }
-                    catch (SocketException e)
-                    {
-                        //这里怎么判断是端口被占用了呢？
-                        if (e.ErrorCode == 10048)
-                        {
-                            cs.Loger.Err("socks5端口冲突，从新加1来过..");
-                            await Task.Delay(500);
-                            cs.Config.ProxySocks5Server_Port++;
-                        }
-                        else
-                        {
-                            cs.Loger.Err("socks5转发服务启动失败！");
-                            cs.Loger.Err(e.Message);
-                            break;
-                        }
-                    }
-                    catch (Exception ee)
-                    {
-                        cs.Loger.Err("socks5转发服务启动失败！");
-                        cs.Loger.Err(ee.Message);
-                        break;
-                    }
-                }
+            //        var listener = new HttpProxyListener(inboundEP, 0);
+            //        try
+            //        {
+            //            await listener.RunAsync(cancellationToken);
+            //            break;
+            //        }
+            //        catch (SocketException e)
+            //        {
+            //            //这里怎么判断是端口被占用了呢？
+            //            if (e.ErrorCode == 10048)
+            //            {
+            //                cs.Loger.Err("socks5端口冲突，从新加1来过..");
+            //                await Task.Delay(500);
+            //                cs.Config.ProxySocks5Server_Port++;
+            //            }
+            //            else
+            //            {
+            //                cs.Loger.Err("socks5转发服务启动失败！");
+            //                cs.Loger.Err(e.Message);
+            //                break;
+            //            }
+            //        }
+            //        catch (Exception ee)
+            //        {
+            //            cs.Loger.Err("socks5转发服务启动失败！");
+            //            cs.Loger.Err(ee.Message);
+            //            break;
+            //        }
+            //    }
 
-            });
+            //});
 
             
         }
