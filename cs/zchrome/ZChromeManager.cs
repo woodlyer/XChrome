@@ -8,11 +8,13 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 using System.Windows.Forms;
 using XChrome.cs.tools.YTools;
 using XChrome.cs.win32;
 using XChrome.cs.xchrome;
 using XChrome.pages;
+using static AdonisUI.Helpers.HwndInterop;
 using static System.Windows.Forms.Design.AxImporter;
 
 namespace XChrome.cs.zchrome
@@ -53,8 +55,8 @@ namespace XChrome.cs.zchrome
                 //长宽不填，表示默认
                 if (!isCustom)
                 {
-                    int _screen_width = screen.Bounds.Width;
-                    int _screen_height = screen.Bounds.Height;
+                    int _screen_width = screen.WorkingArea.Width;
+                    int _screen_height = screen.WorkingArea.Height;
                     int startTop = workarea.Top;
                     int startLeft = workarea.Left;
 
@@ -102,12 +104,13 @@ namespace XChrome.cs.zchrome
                 }
             }
             //重叠排序
-            else
+            else if(type==1)
             {
                 var idslist = _ManagerCache.GetRuningXchrome_idlist();
                 int current_left = workarea.Left;
                 int _width = workarea.Width - idslist.Count * 30;
                 int _height = workarea.Height - 20;
+
 
                 for (int i = 0; i < idslist.Count; i++)
                 {
@@ -120,6 +123,26 @@ namespace XChrome.cs.zchrome
                     current_left += 30;
                     //await Task.Delay(200);
                 }
+            }else if (type == 2)
+            {
+                int _screen_width = screen.WorkingArea.Width;
+                int _screen_height = screen.WorkingArea.Height;
+                var idslist = _ManagerCache.GetRuningXchrome_idlist();
+                int startTop = workarea.Top;
+                int startLeft = workarea.Left;
+
+
+                for (int i = 0; i < idslist.Count; i++)
+                {
+                    var xchrome_id = idslist[i];
+                    XChromeClient xchrome = _ManagerCache.GetRuningXchromeById(xchrome_id);
+                    if (xchrome == null) continue;
+                    IntPtr hwd = (IntPtr)xchrome.Hwnd;
+                    Win32Helper.ChangeWindowPos(hwd, startLeft +10, startTop +10, _screen_width-20, _screen_height-20);
+                    //urrent_left += 30;
+                    //await Task.Delay(200);
+                }
+               
             }
         }
 

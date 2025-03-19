@@ -27,18 +27,24 @@
                     </Grid.RowDefinitions>
                     <Label Content="chrome路径：" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="14" Grid.Column="0" Grid.Row="0"></Label>
                     <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
-                        <TextBox x:Name="chromePath" x:FieldModifier="private" HorizontalAlignment="Left" Width="380" Height="30"></TextBox>
+                        <TextBox x:Name="chromePath" x:FieldModifier="private" HorizontalAlignment="Left" Width="350" Height="30"></TextBox>
                         <Button x:Name="openFolder_btn" x:FieldModifier="private" Click="openFolder_btn_Click"  HorizontalAlignment="Center" Height="30" Margin="5" VerticalAlignment="Center">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <iconPacks:PackIconFontAwesome Kind="FolderOpenRegular" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
                                 <TextBlock VerticalAlignment="Center" Text="选择路径"/>
                             </StackPanel>
                         </Button>
+                        <Button x:Name="openFolder2_btn" x:FieldModifier="private" Click="openFolder2_btn_Click"  HorizontalAlignment="Center" Height="30" Margin="5" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <iconPacks:PackIconFontAwesome Kind="XboxBrands" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,0,4,0"/>
+                                <TextBlock VerticalAlignment="Center" Text="填入默认chrome路径"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
                         <TextBlock HorizontalAlignment="Left"  Width="589" Height="70" LineHeight="20"  Margin="10,10,0,5" >
-请输入自己chrome路径，目前只是最新chrome，建议用小于等于134版本（开发本软件时候的版本） <LineBreak/>
- 类似：C:\Program Files\Google\Chrome\Application\chrome.exe），因版本差异，可能会有不稳定因素<LineBreak/>
+请输入自己chrome路径，目前支持最新chrome，建议用小于等于134版本（开发本软件时候的版本） <LineBreak/>
+ 类似：C:\Program Files\Google\Chrome\Application\chrome.exe ，因版本差异，可能会有不稳定因素<LineBreak/>
 各老版本下载方式见社群公告或者github页面<LineBreak/>
                         </TextBlock>
                     </StackPanel>

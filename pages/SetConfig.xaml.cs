@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -111,6 +112,17 @@ namespace XChrome.pages
         {
             chromePath.Text = cs.Config.chrome_path;
             pageSize_text.Text=cs.Config.pageSize.ToString();
+        }
+
+        private void openFolder2_btn_Click(object sender, RoutedEventArgs e)
+        {
+            string path = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+            if (!File.Exists(path)) {
+                MainWindow.Toast_Error("没有找到默认chrome，可能你没有安装！");
+                return;
+            }
+            chromePath.Text = path;
+
         }
     }
 }

@@ -10,6 +10,10 @@ namespace XChrome.cs.zchrome
 {
     public class XChromeExtension
     {
+        /// <summary>
+        /// 版本，如果需要让程序重新生成，则这里需要修改
+        /// </summary>
+        private string ex_ver = "1.2";
         public string ExtensionPath = "";
 
         public XChromeExtension(string dataPath, string id) {
@@ -17,12 +21,20 @@ namespace XChrome.cs.zchrome
         }
 
 
-        private string CreateTempExtension(string datapath,
-            string id)
+        private string CreateTempExtension(string datapath, string id)
         {
             // 创建临时目录
-            var tempDir = Path.Combine(
-                datapath,"xchrome_default_extension");
+            var tempDir = Path.Combine(datapath,"xchrome_default_extension");
+
+            //判断版本
+            string verfile = Path.Combine(tempDir, "ver.txt");
+            string vernow = "";
+            if (File.Exists(verfile)) {
+                vernow = System.IO.File.ReadAllText(verfile);
+            }
+            if (vernow == ex_ver) {
+                return tempDir;
+            }
 
             if (!Directory.Exists(tempDir)) {
                 Directory.CreateDirectory(tempDir);
@@ -38,11 +50,14 @@ namespace XChrome.cs.zchrome
 
             File.WriteAllText(
                 Path.Combine(tempDir, "background.js"),
-                GenerateBackgroundJs(id));
+                GenerateBackgroundJs());
 
             File.WriteAllText(
                 Path.Combine(tempDir, "index.html"),
                 GenerateHtml(id));
+
+            //设置版本
+            System.IO.File.WriteAllText(verfile,ex_ver);
 
             return tempDir;
         }
@@ -74,8 +89,7 @@ namespace XChrome.cs.zchrome
 ";
         }
 
-        private string GenerateContentJs(
-            string id)
+        private string GenerateContentJs(string id)
         {
             return $@"
 
@@ -218,11 +232,12 @@ observeHead();
  ***************************************/
 // console.log(""content.js 已启动，当前 document.title:"", document.title);
 
+
 ";
         }
 
 
-        private string GenerateBackgroundJs(string id)
+        private string GenerateBackgroundJs()
         {
             string js = $@"
 chrome.tabs.onCreated.addListener((tab) => {{

@@ -11,6 +11,8 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -183,6 +185,35 @@ namespace XChrome.cs.win32
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
+
+
+
+        // 常量定义
+        private const int PS_SOLID = 0; // 实线画笔样式
+
+
+
+        // Win32 API 声明
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetWindowDC(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
+        [DllImport("gdi32.dll")]
+        private static extern IntPtr CreatePen(int fnPenStyle, int nWidth, int crColor);
+
+        [DllImport("gdi32.dll")]
+        private static extern IntPtr SelectObject(IntPtr hDC, IntPtr hGdiObj);
+
+        [DllImport("gdi32.dll")]
+        private static extern bool DeleteObject(IntPtr hObject);
+
+
+        [DllImport("user32.dll")]
+        private static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
+
+
         public static List<IntPtr> GetAllWindowsByClass(string targetClassName)
         {
 
@@ -230,6 +261,58 @@ namespace XChrome.cs.win32
             return childWindows;
         }
 
+
+        /// <summary>
+        /// 给窗口设置带颜色和粗细的边框
+        /// </summary>
+        /// <param name="hWnd">窗口句柄</param>
+        /// <param name="borderColor">边框颜色</param>
+        /// <param name="borderWidth">边框宽度（像素）</param>
+        public static void SetWindowBorder(IntPtr hWnd, Color borderColor, int borderWidth)
+        {
+            // 1. 获取窗口设备上下文 (Device Context)
+            IntPtr hDC = GetWindowDC(hWnd);
+            if (hDC == IntPtr.Zero)
+            {
+                Debug.WriteLine("获取窗口设备上下文失败!");
+                return;
+            }
+
+            // 2. 创建画笔
+            IntPtr hPen = CreatePen(PS_SOLID, borderWidth, ColorTranslator.ToWin32(borderColor));
+            if (hPen == IntPtr.Zero)
+            {
+                ReleaseDC(hWnd, hDC);
+                Debug.WriteLine("创建画笔失败!");
+                return;
+            }
+
+            // 3. 选择画笔到设备上下文
+            IntPtr hOldPen = SelectObject(hDC, hPen);
+
+            // 4. 获取窗口矩形
+            RECT windowRect;
+            GetWindowRect(hWnd, out windowRect);
+
+            // 5. 绘制矩形 (注意: 坐标是窗口相对于屏幕的坐标)
+            // MoveWindow 函数会调整窗口大小以容纳边框
+            MoveWindow(hWnd, windowRect.Left, windowRect.Top, windowRect.Right - windowRect.Left, windowRect.Bottom - windowRect.Top, true);
+
+            //6. 使用DrawRectangle绘制边框
+            using (Graphics g = Graphics.FromHdc(hDC))
+            {
+                g.DrawRectangle(new Pen(borderColor, borderWidth), 0, 0, windowRect.Right - windowRect.Left - 1, windowRect.Bottom - windowRect.Top - 1);
+            }
+
+            // 7. 恢复旧画笔
+            SelectObject(hDC, hOldPen);
+
+            // 8. 清理资源
+            DeleteObject(hPen);
+            ReleaseDC(hWnd, hDC);
+        }
     }
 
 }
+
+

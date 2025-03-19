@@ -173,8 +173,8 @@ namespace XChrome.cs.zchrome
                 //长宽不填，表示默认
                 if (!isCustom)
                 {
-                    int _screen_width = screen.Bounds.Width;
-                    int _screen_height = screen.Bounds.Height;
+                    int _screen_width = screen.WorkingArea.Width;
+                    int _screen_height = screen.WorkingArea.Height;
                    
 
                     var windowlist = ComputeAdaptiveWindowPositions(_screen_width, _screen_height, xchrome_count);
@@ -218,7 +218,7 @@ namespace XChrome.cs.zchrome
                 }
             }
             //重叠排序
-            else
+            else if(type==1)
             {
                 var idslist = _ManagerCache.GetRuningXchrome_idlist();
                 int current_left = workarea.Left;
@@ -229,6 +229,15 @@ namespace XChrome.cs.zchrome
                     list.Add((_width, _height, startLeft + 0, startTop + 0));
                 }
 
+            }else if (type == 2)
+            {
+                int _screen_width = screen.WorkingArea.Width;
+                int _screen_height = screen.WorkingArea.Height;
+                //var windowlist = ComputeAdaptiveWindowPositions(_screen_width, _screen_height, xchrome_count);
+                for (int i = 0; i < xchrome_count; i++)
+                {
+                    list.Add((_screen_width-20, _screen_height-20, startLeft + 10, startTop + 10));
+                }
             }
 
             return list;

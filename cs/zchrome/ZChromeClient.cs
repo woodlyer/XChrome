@@ -178,7 +178,72 @@ namespace XChrome.cs.zchrome
 
         }
 
+        public async Task<string> BuildArgsAsync(FingerprintConfig finger, XChromeClient xchrome,int debugPort)
+        {
+            string args = "";
 
+            //proxy
+            string proxy = "";
+            if (finger.proxy != "")
+            {
+                var pp = ZChromeManager.Instance._ManagerTooler.getProxy2(finger.proxy);
+                if (pp != null)
+                {
+                    if (pp.Value.protocol != "socks5" && pp.Value.name == "")
+                    {
+                        //普通不带密码的http，直接启动参数
+                        string pstr = pp.Value.Address + ":" + pp.Value.Port;
+                        proxy = $"--proxy-server=\"http={pstr};https={pstr}\"";
+                    }
+                    else
+                    {
+                        int portt = await Proxy2ProxyPools.AddMapping_BackLocalPort(pp.Value.protocol, pp.Value.Address, pp.Value.Port, pp.Value.name, pp.Value.pass, CancellationTokenSource_proxy_server.Token);
+                        Debug.WriteLine("代理转发端口端口===" + portt);
+                        proxy = "--proxy-server=\"http=127.0.0.1:" + portt + ";https=127.0.0.1:" + portt + "\"";
+                    }
+
+                }
+                else
+                {
+                    MainWindow.Toast_Error("代理配置有问题，是否格式错误？");
+                }
+            }
+            args += proxy;
+
+
+
+            //默认插件
+            string expath = new XChromeExtension(xchrome.DataPath, xchrome.Id.ToString()).ExtensionPath;
+            args+= $" --load-extension={expath}";
+            //调试端口
+            args += $" --remote-debugging-port={debugPort}";
+            //首页
+            args += " --new-window http://localhost:" + cs.Config.WellComePagePort;
+            //启动位置
+            if (xchrome.StartLeft != 0)
+            {
+                args += $" --window-position={xchrome.StartLeft},{xchrome.StartTop} --window-size={xchrome.StartWidth},{xchrome.StartHeight}";
+            }
+           
+            //用户文件
+            args += $" --user-data-dir=\"{xchrome.DataPath}\"";
+            //其他
+            args += " --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --export-tagged-pdf --no-default-browser-check ";
+            args += " --disable-background-mode --disable-renderer-accessibility --disable-legacy-window --component-updater=initial-delay=6e5";
+            //args += " --no-sandbox --disable-setuid-sandbox --enable-features=NetworkService,NetworkServiceInProcess,LoadCryptoTokenExtension,PermuteTLSExtensions";
+            //args += " --disable-features=FlashDeprecationWarning,EnablePasswordsAccountStorage";
+            //args += " --enable-blink-features=IdleDetection,Fledge,Parakeet";
+            //不走代理域名 --proxy-bypass-list=
+
+            args += $"--disable-popup-blocking --disable-features=SessionRestore,CrashRestoreBubble --force-session-resume=0 --no-default-browser-check --disable-component-update";
+            //默认组件
+            args += " --disable-default-apps --disable-component-update --disable-features=PreinstalledApps";
+
+            // string args = $" --no-first-run --no-default-browser-check ";
+            Debug.WriteLine("启动参数：" + args);
+            return args;
+
+        }
         
 
 
@@ -203,50 +268,12 @@ namespace XChrome.cs.zchrome
                 return (false, cport.errmsg??"");
             }
             int port = cport.port;
-            
+
 
             //第二步，打开浏览器
-            //代理
-            string proxy = "";
-            if (finger.proxy != "")
-            {
-                var pp = ZChromeManager.Instance._ManagerTooler.getProxy2(finger.proxy);
-                if (pp != null)
-                {
-                    if (pp.Value.protocol!="socks5" && pp.Value.name == "")
-                    {
-                        //普通不带密码的http，直接启动参数
-                        string pstr = pp.Value.Address + ":" + pp.Value.Port;
-                        proxy = $"--proxy-server=\"http={pstr};https={pstr}\"";
-                    }
-                    else
-                    {
-                        int portt = await Proxy2ProxyPools.AddMapping_BackLocalPort(pp.Value.protocol, pp.Value.Address, pp.Value.Port, pp.Value.name, pp.Value.pass, CancellationTokenSource_proxy_server.Token);
-                        Debug.WriteLine("代理转发端口端口===" + portt);
-                        proxy = "--proxy-server=\"http=127.0.0.1:" + portt + ";https=127.0.0.1:" + portt + "\"";
-                    }
-                   
-                }
-                else
-                {
-                    MainWindow.Toast_Error("代理配置有问题，是否格式错误？");
-                }
-            }
+            string args = await BuildArgsAsync(finger, xchrome, port);
 
-            //默认插件
-            string expath = new XChromeExtension(xchrome.DataPath, xchrome.Id.ToString()).ExtensionPath;
-            string ex = $"--load-extension={expath}";
 
-            //其他参数
-            string startpage ="--new-window http://localhost:"+cs.Config.WellComePagePort;
-            string NetworkService = "";// "--enable-features=NetworkService --enable-features=NetworkServiceInProcess2"; //--ignore-certificate-errors
-            string postion = $"--window-position={xchrome.StartLeft},{xchrome.StartTop} --window-size={xchrome.StartWidth},{xchrome.StartHeight}";
-            extraArguments += $"--disable-popup-blocking --disable-features=SessionRestore,CrashRestoreBubble --force-session-resume=0 --no-default-browser-check --disable-component-update";
-            //默认组件
-            extraArguments += " --disable-default-apps --disable-component-update --disable-features=PreinstalledApps";
-            
-            string args = $"--remote-debugging-port={port} {ex} {startpage} --no-first-run {NetworkService} --no-default-browser-check --user-data-dir=\"{userDataDir}\" {postion} {proxy} {extraArguments}";
-            Debug.WriteLine("启动参数："+args);
             var startInfo = new ProcessStartInfo(chromePath, args)
             {
                 UseShellExecute = false,
@@ -290,7 +317,9 @@ namespace XChrome.cs.zchrome
             xchrome.Hwnd = hWnd;
             xchrome.ProcessId = (uint)_chromeProcess.Id;
 
-            _=Task.Run(async () =>
+            ControlManager.SetBorderColor(System.Drawing.Color.Black, hWnd);
+
+            _ =Task.Run(async () =>
             {
                 _webSocketDebuggerUrl = isDebugInterfaceReady.socketurl;
                 Log?.Invoke($"Debugger URL: {_webSocketDebuggerUrl}");

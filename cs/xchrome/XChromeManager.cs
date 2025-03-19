@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using XChrome.cs.tools.socks5;
 using XChrome.cs.tools.YTools;
 using XChrome.cs.win32;
@@ -450,90 +449,90 @@ namespace XChrome.cs.xchrome
         /// <returns></returns>
         public async Task ArrayChromes(int type, string width, string height, string licount, int screenIndex)
         {
-            string temp = type + "---" + width + "---" + height + "---" + licount + "---" + screenIndex;
-            _ManagerCache.ArrayChromes_temp_data = temp;
-            //获得屏幕
-            Screen screen = Screen.AllScreens[screenIndex];
-            //屏幕位置 workarea
-            var workarea = screen.WorkingArea;
-            //自定义
-            bool isCustom = (width != "" && height != "" && licount != "");
-            if (isCustom) { type = 0; }
+            //string temp = type + "---" + width + "---" + height + "---" + licount + "---" + screenIndex;
+            //_ManagerCache.ArrayChromes_temp_data = temp;
+            ////获得屏幕
+            //Screen screen = Screen.AllScreens[screenIndex];
+            ////屏幕位置 workarea
+            //var workarea = screen.WorkingArea;
+            ////自定义
+            //bool isCustom = (width != "" && height != "" && licount != "");
+            //if (isCustom) { type = 0; }
 
-            //平铺
-            if (type == 0)
-            {
-                //长宽不填，表示默认
-                if (!isCustom)
-                {
-                    int _screen_width = screen.Bounds.Width;
-                    int _screen_height = screen.Bounds.Height;
-                    int startTop = workarea.Top;
-                    int startLeft = workarea.Left;
+            ////平铺
+            //if (type == 0)
+            //{
+            //    //长宽不填，表示默认
+            //    if (!isCustom)
+            //    {
+            //        int _screen_width = screen.Bounds.Width;
+            //        int _screen_height = screen.Bounds.Height;
+            //        int startTop = workarea.Top;
+            //        int startLeft = workarea.Left;
 
-                    var windowlist = _ManagerTooler.ComputeAdaptiveWindowPositions(_screen_width, _screen_height, _ManagerCache.GetRuningXchromeCount());
-                    var idslist =_ManagerCache.GetRuningXchrome_idlist();
+            //        var windowlist = _ManagerTooler.ComputeAdaptiveWindowPositions(_screen_width, _screen_height, _ManagerCache.GetRuningXchromeCount());
+            //        var idslist =_ManagerCache.GetRuningXchrome_idlist();
 
-                    for (int i = 0; i < windowlist.Count; i++)
-                    {
-                        var xchrome_id = idslist[i];
-                        var windowPos = windowlist[i];
-                        XChromeClient? xchrome = _ManagerCache.GetRuningXchromeById(xchrome_id);
-                        if (xchrome == null) continue;
-                        IntPtr hwd = (IntPtr)xchrome.Hwnd;
-                        Win32Helper.ChangeWindowPos(hwd, startLeft + windowPos.Left, startTop + windowPos.Top, windowPos.Width, windowPos.Height);
-                        //await Task.Delay(200);
-                    }
-                }
-                //自定义填写
-                else
-                {
-                    int _width = width.TryToInt32(100);
-                    int _height = height.TryToInt32(100);
-                    int _licount = licount.TryToInt32(3);
+            //        for (int i = 0; i < windowlist.Count; i++)
+            //        {
+            //            var xchrome_id = idslist[i];
+            //            var windowPos = windowlist[i];
+            //            XChromeClient? xchrome = _ManagerCache.GetRuningXchromeById(xchrome_id);
+            //            if (xchrome == null) continue;
+            //            IntPtr hwd = (IntPtr)xchrome.Hwnd;
+            //            Win32Helper.ChangeWindowPos(hwd, startLeft + windowPos.Left, startTop + windowPos.Top, windowPos.Width, windowPos.Height);
+            //            //await Task.Delay(200);
+            //        }
+            //    }
+            //    //自定义填写
+            //    else
+            //    {
+            //        int _width = width.TryToInt32(100);
+            //        int _height = height.TryToInt32(100);
+            //        int _licount = licount.TryToInt32(3);
 
-                    int startTop = workarea.Top;
-                    int startLeft = workarea.Left;
-                    int current_left = startLeft;
-                    var idslist = _ManagerCache.GetRuningXchrome_idlist();
-                    for (int i = 0; i < idslist.Count; i++)
-                    {
-                        var xchrome_id = idslist[i];
-                        XChromeClient? xchrome = _ManagerCache.GetRuningXchromeById(xchrome_id);
-                        if (xchrome == null) continue;
-                        IntPtr hwd = (IntPtr)xchrome.Hwnd;
-                        current_left = startLeft + (i % _licount) * _width;
-                        //需要换行
-                        if (i % _licount == 0 && i != 0)
-                        {
-                            startTop += _height;
-                            current_left = startLeft;
-                        }
-                        Win32Helper.ChangeWindowPos(hwd, current_left, startTop, _width, _height);
-                        //await Task.Delay(200);
-                    }
-                }
-            }
-            //重叠排序
-            else
-            {
-                var idslist = _ManagerCache.GetRuningXchrome_idlist();
-                int current_left = workarea.Left;
-                int _width = workarea.Width - idslist.Count * 30;
-                int _height = workarea.Height - 20;
+            //        int startTop = workarea.Top;
+            //        int startLeft = workarea.Left;
+            //        int current_left = startLeft;
+            //        var idslist = _ManagerCache.GetRuningXchrome_idlist();
+            //        for (int i = 0; i < idslist.Count; i++)
+            //        {
+            //            var xchrome_id = idslist[i];
+            //            XChromeClient? xchrome = _ManagerCache.GetRuningXchromeById(xchrome_id);
+            //            if (xchrome == null) continue;
+            //            IntPtr hwd = (IntPtr)xchrome.Hwnd;
+            //            current_left = startLeft + (i % _licount) * _width;
+            //            //需要换行
+            //            if (i % _licount == 0 && i != 0)
+            //            {
+            //                startTop += _height;
+            //                current_left = startLeft;
+            //            }
+            //            Win32Helper.ChangeWindowPos(hwd, current_left, startTop, _width, _height);
+            //            //await Task.Delay(200);
+            //        }
+            //    }
+            //}
+            ////重叠排序
+            //else
+            //{
+            //    var idslist = _ManagerCache.GetRuningXchrome_idlist();
+            //    int current_left = workarea.Left;
+            //    int _width = workarea.Width - idslist.Count * 30;
+            //    int _height = workarea.Height - 20;
 
-                for (int i = 0; i < idslist.Count; i++)
-                {
-                    var xchrome_id = idslist[i];
-                    XChromeClient xchrome = _ManagerCache.GetRuningXchromeById(xchrome_id);
-                    if (xchrome == null) continue;
-                    IntPtr hwd = (IntPtr)xchrome.Hwnd;
+            //    for (int i = 0; i < idslist.Count; i++)
+            //    {
+            //        var xchrome_id = idslist[i];
+            //        XChromeClient xchrome = _ManagerCache.GetRuningXchromeById(xchrome_id);
+            //        if (xchrome == null) continue;
+            //        IntPtr hwd = (IntPtr)xchrome.Hwnd;
 
-                    Win32Helper.ChangeWindowPos(hwd, current_left, workarea.Top, _width, _height);
-                    current_left += 30;
-                    //await Task.Delay(200);
-                }
-            }
+            //        Win32Helper.ChangeWindowPos(hwd, current_left, workarea.Top, _width, _height);
+            //        current_left += 30;
+            //        //await Task.Delay(200);
+            //    }
+            //}
 
         }
 

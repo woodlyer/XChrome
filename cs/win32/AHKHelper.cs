@@ -154,7 +154,7 @@ namespace XChrome.cs.win32
         /// <param name="ControlClassNameOrText"></param>
         /// <param name="WindowStr"></param>
         /// <returns></returns>
-        public static Rect GetControlRect(string ControlClassNameOrText, string WindowStr)
+        public static Rect1 GetControlRect(string ControlClassNameOrText, string WindowStr)
         {
             string s = " ControlGetPos, x, y, w, h,"+ControlClassNameOrText+","+WindowStr;
             var ahk = AutoHotkeyEngine.Instance;
@@ -163,7 +163,7 @@ namespace XChrome.cs.win32
             string y = ahk.GetVar("y");
             string w = ahk.GetVar("w");
             string h = ahk.GetVar("h");
-            Rect r = new Rect() { 
+            Rect1 r = new Rect1() { 
                 x=Convert.ToInt32(x),
                 y=Convert.ToInt32(y),
                 width=Convert.ToInt32(w),
@@ -178,7 +178,7 @@ namespace XChrome.cs.win32
         /// <param name="ControlClassNameOrText"></param>
         /// <param name="r"></param>
         /// <param name="WindowStr"></param>
-        public static void MoveControl(string ControlClassNameOrText, Rect r, string WindowStr)
+        public static void MoveControl(string ControlClassNameOrText, Rect1 r, string WindowStr)
         {
             string s = "ControlMove, "+ ControlClassNameOrText + ", "+r.x+", "+r.y+", "+r.width+", "+r.height+" , "+WindowStr;
             DoScript(s);
@@ -232,7 +232,7 @@ namespace XChrome.cs.win32
         MIDDLE=2
     }
 
-    public class Rect
+    public class Rect1
     {
         public int x;
         public int y;

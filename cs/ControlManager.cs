@@ -13,6 +13,7 @@ using Gma.System.MouseKeyHook;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -20,6 +21,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Media;
 using XChrome.cs.db;
 using XChrome.cs.win32;
 using XChrome.cs.xchrome;
@@ -297,24 +299,42 @@ namespace XChrome.cs
 
             _main_xchrome_id=xchrome_id;
             //获得主控xchrome
-            var xchrome = ZChromeManager.Instance._ManagerCache.GetRuningXchromeById(xchrome_id);
-            if (xchrome == null) { return; }
-            _xchrome = xchrome;
-            //获取主控位置
-            IntPtr hwd = (IntPtr)xchrome.Hwnd;
-            Win32Helper.GetWindowRect(hwd, out var rect);
-            _main_hwd = hwd;
-            _main_left = rect.Left;
-            _main_right = rect.Right;
-            _main_top = rect.Top;
-            _main_bottom = rect.Bottom;
-            _main_width = rect.Right - rect.Left;
-            _main_height = rect.Bottom - rect.Top;
+            //var xchrome = ZChromeManager.Instance._ManagerCache.GetRuningXchromeById(xchrome_id);
+            //if (xchrome == null) { return; }
+            
 
 
-            //uint DWMWA_BORDER_COLOR = 35;
-            //uint newBorderColor = 0x000000FF; // 红色（蓝色通道占低位，格式：0x00 BB GG RR）
-            //int hr = DwmSetWindowAttribute(hwd, DWMWA_BORDER_COLOR, ref newBorderColor, (uint)Marshal.SizeOf(typeof(uint)));
+            var list = ZChromeManager.Instance._ManagerCache.GetRuningXchromesList();
+            foreach (var x in list)
+            {
+                if (x.Id == xchrome_id)
+                {
+                    _xchrome = x;
+                    //获取主控位置
+                    IntPtr hwd = (IntPtr)x.Hwnd;
+                    Win32Helper.GetWindowRect(hwd, out var rect);
+                    _main_hwd = hwd;
+                    _main_left = rect.Left;
+                    _main_right = rect.Right;
+                    _main_top = rect.Top;
+                    _main_bottom = rect.Bottom;
+                    _main_width = rect.Right - rect.Left;
+                    _main_height = rect.Bottom - rect.Top;
+                    SetBorderColor(System.Drawing.Color.Red, hwd);
+                }
+                else
+                {
+                    IntPtr hwd = (IntPtr)x.Hwnd;
+                    SetBorderColor(System.Drawing.Color.Black, hwd);
+                }
+            }
+
+
+
+
+            //Win32Helper.SetWindowBorder(hwd, Color.Red, 5);
+            
+
 
             if (!_isRunning)
             {
@@ -325,6 +345,20 @@ namespace XChrome.cs
             
         }
 
+        public static void SetBorderColor(System.Drawing.Color color, IntPtr hwd)
+        {
+            try
+            {
+                uint DWMWA_BORDER_COLOR = 34;
+                uint colorValue = (uint)ColorTranslator.ToWin32(color);
+                int hr = DwmSetWindowAttribute(hwd, DWMWA_BORDER_COLOR, ref colorValue, (uint)Marshal.SizeOf(typeof(uint)));
+            }
+            catch (Exception ee)
+            {
+
+            }
+        }
+
 
         /// <summary>
         /// 关闭
@@ -333,6 +367,14 @@ namespace XChrome.cs
         {
             _isRunning=false;
             MouseHookServer.SetConsumer(null);
+
+            var list= ZChromeManager.Instance._ManagerCache.GetRuningXchromesList();
+            foreach(var v in list)
+            {
+                IntPtr hwd = (IntPtr)v.Hwnd;
+                if (hwd == IntPtr.Zero) continue;
+                SetBorderColor(System.Drawing.Color.Black, hwd);
+            }
         }
 
 

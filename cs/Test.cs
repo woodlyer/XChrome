@@ -22,11 +22,34 @@ namespace XChrome.cs
 
             return true;
 
-            // 忽略 HTTPS 证书验证（这会使所有 SSL 连接直接通过验证，用在某些 HTTPS 证书有问题的场景）
-            
 
 
+            foreach (var screen in ScreenInfo.AllScreens)
+            {
+                // 转换为 WPF 物理像素 (考虑 DPI 缩放)
+                var scaledBounds = new Rect(
+                    screen.Bounds.X / screen.DpiScaleX,
+                    screen.Bounds.Y / screen.DpiScaleY,
+                    screen.Bounds.Width / screen.DpiScaleX,
+                    screen.Bounds.Height / screen.DpiScaleY);
 
+                Debug.WriteLine($"Display: {screen.DeviceName}");
+                Debug.WriteLine($"Primary: {screen.IsPrimary}");
+                Debug.WriteLine($"Resolution: {scaledBounds.Width}x{scaledBounds.Height}");
+            }
+
+            var primaryScreen = ScreenInfo.AllScreens.FirstOrDefault(s => s.IsPrimary);
+            if (primaryScreen != null)
+            {
+                var workArea = primaryScreen.WorkingArea;
+                var scaledWorkArea = new Rect(
+                    workArea.X / primaryScreen.DpiScaleX,
+                    workArea.Y / primaryScreen.DpiScaleY,
+                    workArea.Width / primaryScreen.DpiScaleX,
+                    workArea.Height / primaryScreen.DpiScaleY);
+
+                Debug.WriteLine($"Available workspace: {scaledWorkArea}");
+            }
 
             return false;
         }

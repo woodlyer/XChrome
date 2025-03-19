@@ -1,8 +1,2 @@
-﻿﻿- [x] 版本 1.11 【2025.03.14】
->-1. 打开新页面空白问题
->
->-2. 标题固定环境id
->
->-3. 修复代理等相关问题
->
->-4. 修复很多小bug
+﻿更新日志已经迁移到：
+https://github.com/chanawudi/XChrome/blob/master/UpdateLog.html

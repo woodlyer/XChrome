@@ -246,6 +246,14 @@ namespace XChrome.pages
         /// <param name="e"></param>
         private async void start_btn_Click(object sender, RoutedEventArgs e)
         {
+            //自动
+            bool isAutoPl = false;
+            System.Windows.Controls.Button btn = sender as System.Windows.Controls.Button;
+            if(btn.Name== "start_btn")
+            {
+                isAutoPl = true;
+            }
+
             var ilist = TableItems.Where(it => it.Check == true).Select(it => it.Id).ToList();
             if (ilist == null) return;
             //查询库
@@ -256,6 +264,8 @@ namespace XChrome.pages
             buttonStatus.Array = false;
             buttonStatus.Stop = false;
             buttonStatus.Control = false;
+
+            
 
             //计算大小
             int stype = pl_type_com.SelectedIndex;
@@ -285,24 +295,33 @@ namespace XChrome.pages
                 xc.DataPath = string.IsNullOrEmpty(it.datapath) ? System.IO.Path.Combine(cs.Config.chrome_data_path, it.id.ToString()) : it.datapath;
                 xc.Evns = it.envs ?? "";
                 xc.Name = it.name;
-                xc.StartWidth = pos.wdith;
-                xc.StartHeight = pos.height;
-                xc.StartLeft= pos.left;
-                xc.StartTop= pos.top;
+                if (isAutoPl)
+                {
+                    xc.StartWidth = pos.wdith;
+                    xc.StartHeight = pos.height;
+                    xc.StartLeft = pos.left;
+                    xc.StartTop = pos.top;
+                }
+                
+
                 xc.Extensions = it.extensions;
 
                 await Task.Run(async () => {
                     await ZChromeManager.Instance.OpenChrome(xc);
                 });
-                if(ridlist.Count>0)
+                if(ridlist.Count>0 && isAutoPl)
                     pl_btn_Click(null, null);
                 
             }
-            await Task.Run(async () =>
+            if (isAutoPl)
             {
-                await Task.Delay(1000);
-            });
-            pl_btn_Click(null, null);
+                await Task.Run(async () =>
+                {
+                    await Task.Delay(1000);
+                });
+                pl_btn_Click(null, null);
+            }
+            
             buttonStatus.Array = true;
             buttonStatus.Stop = true;
             buttonStatus.Control = true;
