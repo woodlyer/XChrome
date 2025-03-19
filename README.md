@@ -52,7 +52,7 @@ Github：https://github.com/chanawudi/XChrome
 推特：https://x.com/chanawudi 
 如果你使用本软件，关注/点赞/转发推特，是对我最大的支持
 
-更新日志：https://github.com/chanawudi/XChrome/blob/master/UpdateLog.md
+更新日志：https://chanawudi.github.io/XChrome/UpdateLog.html
 chrome各版本下载：https://github.com/chanawudi/XChrome/blob/master/ChromeDownLoad.md
 
 
