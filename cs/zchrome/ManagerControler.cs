@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -181,6 +182,16 @@ namespace XChrome.cs.zchrome
 
         public void CopyControl_keyPress(long except_id, char _char, bool isExtension = false)
         {
+            bool isNiantie = false;
+            if (_char == 'v')
+            {
+                long c = tools.YTools.YUtils.GetTime13(DateTime.Now) - control_start_time;
+                if (c < 2000)
+                {
+                    Debug.WriteLine("触发黏贴");
+                    isNiantie = true;
+                }
+            }
             var idslist = _ManagerCache.GetRuningXchrome_idlist();
             foreach (var id in idslist)
             {
@@ -199,6 +210,40 @@ namespace XChrome.cs.zchrome
                 if (except_id == hwd) continue;
                 if (!Win32Helper.IsWindow(hwd)) continue;
 
+                //黏贴
+                if (isNiantie)
+                {
+                    _ = Task.Run(() =>
+                    {
+                        // 1. 发送 Ctrl 键按下
+                        Win32Helper.PostMessage(hwd, 0x0100, (IntPtr)0x11, (IntPtr)0x00000001);
+
+                        Thread.Sleep(5);  // 加一个短暂延时
+
+                        // 2. 发送 V 键按下
+                        Win32Helper.PostMessage(hwd, 0x0100, (IntPtr)0x56, (IntPtr)0x00000001);
+
+                        Thread.Sleep(5);
+
+                        // 3. 发送 V 键松开
+                        Win32Helper.PostMessage(hwd, 0x0101, (IntPtr)0x56, (IntPtr)0xC0000001);
+
+                        Thread.Sleep(5);
+
+                        // 4. 发送 Ctrl 键松开
+                        Win32Helper.PostMessage(hwd, 0x0101, (IntPtr)0x11, (IntPtr)0xC0000001);
+
+                        Thread.Sleep(5);
+                    });
+                    
+                    
+
+
+                    //bool result = Win32Helper.PostMessage(hwd, 0x0302, IntPtr.Zero, IntPtr.Zero);
+                    //Debug.WriteLine(result);
+                    continue;
+                }
+
                 // 将字符转换为 WM_CHAR 消息的 wParam 值
                 IntPtr wParam = new IntPtr(_char);
                 // 对于 WM_CHAR，此处 lParam 中包含附加信息，可简单设为 0
@@ -207,10 +252,13 @@ namespace XChrome.cs.zchrome
                 // 使用 PostMessage 发送 WM_CHAR 消息
                 bool success = Win32Helper.PostMessage(hwd, 0x0102, wParam, lParam);
 
+                
+
             }
 
         }
 
+        long control_start_time = 0;
         public void CopyControl_keyDownOther(long except_id, Keys key, bool isExtension = false)
         {
             var idslist = _ManagerCache.GetRuningXchrome_idlist();
@@ -230,6 +278,13 @@ namespace XChrome.cs.zchrome
                 }
                 if (except_id == hwd) continue;
                 if (!Win32Helper.IsWindow(hwd)) continue;
+
+                ///control 
+                if (key == Keys.LControlKey)
+                {
+                    control_start_time = tools.YTools.YUtils.GetTime13(DateTime.Now);
+                }
+
                 Win32Helper.PostMessage(hwd, 0x0100, new IntPtr((int)key), IntPtr.Zero);
 
             }
@@ -301,4 +356,6 @@ namespace XChrome.cs.zchrome
             }
         }
     }
+
+
 }

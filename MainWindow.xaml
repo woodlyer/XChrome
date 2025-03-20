@@ -32,13 +32,17 @@
         <GroupBox HorizontalContentAlignment="Center" HorizontalAlignment="Left" Width="160" Padding="0,8,0,8">
             <Grid>
                 <Image HorizontalAlignment="Left" Height="28" Margin="18,10,0,0" VerticalAlignment="Top" Width="108" Source="/Resources/xchrome.png"/>
-                <Button HorizontalAlignment="Center" Margin="0,57,0,0" VerticalAlignment="Top" Padding="10,5,10,5" FontSize="14" Click="Button_Click_1" >
+                <Button HorizontalAlignment="Center" Margin="-30,57,0,0" VerticalAlignment="Top" Padding="10,8,10,8" FontSize="14" Click="Button_Click_1" >
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontWeight="Bold"><Run Text="新建浏览器"/></TextBlock>
-                        <TextBlock Margin="5,0,0,0"><Run Text="[+]"/></TextBlock>
+                        
                     </StackPanel>
                 </Button>
-                <ListBox VerticalContentAlignment="Center"  VerticalAlignment="Top" SelectionChanged="ListBox_SelectionChanged"  HorizontalAlignment="Left" Width="160" Height="280" Margin="0,120,0,0" Panel.ZIndex="100">
+                <Button x:Name="mCreate_btn" Click="mCreate_btn_Click"  HorizontalAlignment="Center" ToolTip="批量创建" Margin="89,57,0,0" VerticalAlignment="Top" Height="34" Padding="4,0,0,0" FontSize="14">
+                    <iconPacks:PackIconFontAwesome  Kind="HeartCirclePlusSolid" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,3,4,0"/>
+                </Button>
+
+                <ListBox VerticalContentAlignment="Center" x:Name="mainListBox"  VerticalAlignment="Top" SelectionChanged="ListBox_SelectionChanged"  HorizontalAlignment="Left" Width="160" Height="280" Margin="0,120,0,0" Panel.ZIndex="100">
                     <ListBoxItem x:Name="ListBoxItem_cmanager" Tag="chrome"  Height="39" HorizontalAlignment="Center" Padding="20,9,0,4" Width="160" VerticalAlignment="Bottom">
                         <StackPanel Orientation="Horizontal">
                             <iconPacks:PackIconFontAwesome Kind="ChromeBrands" Width="20" Height="15"  VerticalAlignment="Center"  Margin="0,3,4,0"/>

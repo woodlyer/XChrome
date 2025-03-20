@@ -20,6 +20,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -72,10 +73,10 @@ namespace XChrome.forms
         private async Task loadGroup()
         {
             var db = cs.db.MyDb.DB;
-            var list=await db.Queryable<Group>().OrderBy(it=>it.id,SqlSugar.OrderByType.Asc).ToListAsync();
+            var list=await db.Queryable<cs.db.Group>().OrderBy(it=>it.id,SqlSugar.OrderByType.Asc).ToListAsync();
             db.Close();
 
-            foreach (Group group in list) { 
+            foreach (cs.db.Group group in list) { 
                 groupList.Items.Add(group);
             }
 
@@ -100,8 +101,14 @@ namespace XChrome.forms
             {
                 sj_timezones.Items.Add(new ComboBoxItem() { Content = cu.Value+","+ cu.Key, Tag = cu.Key });
             }
+            //os
+            sj_os.Items.Add(new ComboBoxItem() { Content = "[操作系统]" });
+            foreach (var cu in cs.EnvironmentManager.Get_Os())
+            {
+                sj_os.Items.Add(new ComboBoxItem() { Content = cu.Value, Tag = cu.Key });
+            }
 
-           
+
             sj_fbl.Items.Add(new ComboBoxItem() { Content = "[分辨率]" });
             foreach(var fb in cs.EnvironmentManager.Get_resolution())
             {
@@ -126,6 +133,8 @@ namespace XChrome.forms
             {
                 sj_jw_city.Items.Add(cu);
             }
+
+           
 
         }
 
@@ -209,6 +218,52 @@ namespace XChrome.forms
             return JObject.FromObject(environments).ToString();
         }
 
+        private async Task UserAgent_show(string ua)
+        {
+            //string chromeVersion = $"{major}.0.{build}.{patch}";
+
+            //// 组装 User-Agent 字符串
+            //string userAgent = $"Mozilla/5.0 ({osstr}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chromeVersion} Safari/537.36";
+
+
+            string pattern = @"Mozilla\/5\.0 \((?<osstr>.*?)\).*?Chrome\/(?<chromeVersion>[\d\.]+)";
+            Regex regex = new Regex(pattern);
+
+            Match match = regex.Match(ua);
+            if (match.Success)
+            {
+                string osstr = match.Groups["osstr"].Value;
+                string chromeVersion = match.Groups["chromeVersion"].Value;
+
+                sj_os.SelectedValue = osstr;
+                string[] vv = chromeVersion.Split(".");
+                sj_chrome_v1.Text = vv[0];
+                sj_chrome_v2.Text = vv[2];
+                sj_chrome_v3.Text = vv[3];
+
+              
+            }
+            else
+            {
+                //Console.WriteLine("未能匹配到信息");
+            }
+
+        }
+
+        private async Task UserAgent_toText()
+        {
+            if (sj_os.SelectedValue == null) return;
+            string ss = sj_os.SelectedValue.ToString();
+            string osstr = "Windows NT 10.0; Win64";
+            if (ss != "null") {
+                osstr = ss;
+            }
+            string chromeVersion = $"{sj_chrome_v1.Text}.0.{sj_chrome_v2.Text}.{sj_chrome_v3.Text}";
+            // 组装 User-Agent 字符串
+            string userAgent = $"Mozilla/5.0 ({osstr}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chromeVersion} Safari/537.36";
+            useragent_text.Text = userAgent;
+        }
+
         /// <summary>
         /// 修改的时候加载数据
         /// </summary>
@@ -235,12 +290,17 @@ namespace XChrome.forms
             datapath_text.Text=(string.IsNullOrEmpty(o.datapath)?(System.IO.Path.Combine( Directory.GetCurrentDirectory(), "chrome_data",id.ToString())):o.datapath);
             //设置分组
             long groupid = o.groupId.Value;
-            var group=groupList.Items.OfType<Group>().FirstOrDefault(it=>it.id == groupid);
+            var group=groupList.Items.OfType<cs.db.Group>().FirstOrDefault(it=>it.id == groupid);
             if(group != null)groupList.SelectedItem = group;
 
             //其他指纹
             string envs = o.envs ?? "{}";
             await Evn_show(envs);
+
+            //user-agent
+            await UserAgent_show(o.userAgent);
+
+
         }
 
 
@@ -262,8 +322,10 @@ namespace XChrome.forms
             {
                 //创建
                 //随机useragent
-                string ag = YUtils.GetRandomUserAgent(YUtils.GetTime13(DateTime.Now).ToString());
-                useragent_text.Text = ag;
+                //string ag = YUtils.GetRandomUserAgent(YUtils.GetTime13(DateTime.Now).ToString());
+                //随机user-agent
+                GenerateRandomChromeUserAgent();
+                //useragent_text.Text = ag;
                 okbtntxt.Text = "确定创建";
             }
 
@@ -345,7 +407,7 @@ namespace XChrome.forms
             othertxt.Text = jsevn;
             string name= chromeName.Text.Trim();
             string agent= useragent_text.Text.Trim();
-            long groupId = groupList.SelectedItem==null?1:( groupList.SelectedItem as Group).id;
+            long groupId = groupList.SelectedItem==null?1:( groupList.SelectedItem as cs.db.Group).id;
             string remark = remark_text.Text;
             string proxy = proxy_text.Text.Trim();
             string datapath = datapath_text.Text.Trim();
@@ -490,32 +552,32 @@ namespace XChrome.forms
         /// Mozilla/5.0 (平台) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{major}.0.{build}.{patch} Safari/537.36
         /// </summary>
         /// <returns>随机生成的 Chrome User-Agent 字符串</returns>
-        public static string GenerateRandomChromeUserAgent()
+        public string GenerateRandomChromeUserAgent()
         {
-            Random rnd = new Random();
-            string[] Platforms = new[]
-            {
-                "Windows NT 10.0; Win64; x64",
-                "Macintosh; Intel Mac OS X 10_15_7",
-                "X11; Linux x86_64",
-            };
-
-            // 随机选择一个平台
-            string platform = Platforms[rnd.Next(Platforms.Length)];
+            var random = new Random();
+            // os
+            var os = EnvironmentManager.Get_Os();
+            var osstr = os.Keys.ToList()[random.Next(os.Keys.Count)];
+            string osshow = os[osstr];
+            sj_os.SelectedValue = osstr;
 
             // 生成 Chrome 版本号的各个数字部分
             // major：Chrome 主版本号，范围设定在 90 到 115 之间
-            int major = rnd.Next(108, 120); // 随机范围 [90,115]
+            int major = random.Next(108, 120); // 随机范围 [90,115]
             // build：生成一个构建号，例如 4000 到 5999
-            int build = rnd.Next(4000, 6000);
+            int build = random.Next(4000, 6000);
             // patch：生成一个补丁版本号，例如 10 到 149
-            int patch = rnd.Next(10, 150);
+            int patch = random.Next(10, 150);
+            sj_chrome_v1.Text = major.ToString();
+            sj_chrome_v2.Text = build.ToString();
+            sj_chrome_v3.Text = patch.ToString();
 
             // 构造 Chrome 版本号，可以固定 minor 版本为 0
             string chromeVersion = $"{major}.0.{build}.{patch}";
 
             // 组装 User-Agent 字符串
-            string userAgent = $"Mozilla/5.0 ({platform}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chromeVersion} Safari/537.36";
+            string userAgent = $"Mozilla/5.0 ({osstr}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{chromeVersion} Safari/537.36";
+            useragent_text.Text = userAgent;
             return userAgent;
         }
 
@@ -611,6 +673,19 @@ namespace XChrome.forms
                 string selectedFile = openFileDialog.FolderName;
                 datapath_text.Text = selectedFile;
             }
+        }
+
+  
+
+        private async void sj_os_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            await UserAgent_toText();
+        }
+
+
+        private async void sj_chrome_v1_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            await UserAgent_toText();
         }
     }
 

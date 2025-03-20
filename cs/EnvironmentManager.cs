@@ -210,5 +210,17 @@ namespace XChrome.cs
             }
             return acceptLanguage;
         }
+
+
+        public static Dictionary<string, string> Get_Os()
+        {
+            var locales = new Dictionary<string, string>
+            {
+                { "Windows NT 10.0; Win64; x64", "Windows" },
+                { "Macintosh; Intel Mac OS X 10_15_7", "Mac" },
+                { "X11; Linux x86_64", "Linux" }
+            };
+            return locales;
+        }
     }
 }

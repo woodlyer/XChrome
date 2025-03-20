@@ -326,16 +326,28 @@ namespace XChrome
 
             //创建通知管理器
             CreateNotifier();
-
             if (cs.Config.isZChrome && cs.Config.chrome_path == "")
             {
-                System.Windows.MessageBox.Show("目前版本必须指定你自己的chrome程序，即将跳转去设置！");
+                System.Windows.MessageBox.Show("您必须指定你自己的chrome程序，即将跳转去设置！");
                 _=Task.Run(async() => {
                     await Task.Delay(200);
                     Dispatcher.Invoke(new Action(() => {
-                        MainFrame_other.Visibility = Visibility.Visible;
-                        MainFrame_main.Visibility = Visibility.Hidden;
-                        MainFrame_other.Navigate(new pages.SetConfig());
+                        foreach(var ll in mainListBox.Items)
+                        {
+                            if(ll is System.Windows.Controls.ListBoxItem)
+                            {
+                                var l=ll as System.Windows.Controls.ListBoxItem;
+                                if (l.Tag?.ToString() == "set")
+                                {
+                                    l.IsSelected = true;
+                                    break;
+                                }
+                            }
+                            
+                        }
+                        //MainFrame_other.Visibility = Visibility.Visible;
+                        //MainFrame_main.Visibility = Visibility.Hidden;
+                        //MainFrame_other.Navigate(new pages.SetConfig());
                     }));
                 } );
                 
@@ -428,6 +440,20 @@ namespace XChrome
                     await CManager._cmanager.addOver();
                 }
             }
+            
+        }
+
+        
+        /// <summary>
+        /// 批量创建环境按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void mCreate_btn_Click(object sender, RoutedEventArgs e)
+        {
+            MCreateChrome mc = new MCreateChrome();
+            mc.Owner = this;
+            mc.ShowDialog();
             
         }
     }

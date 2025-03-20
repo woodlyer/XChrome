@@ -148,6 +148,7 @@ namespace XChrome.cs
             else if (me.type == 2)
             {
                 if (me.keyChar == null) return;
+                //Debug.WriteLine(me.keyChar);
                 //判断是否主控内
                 var qwin = (IntPtr)Win32Helper.GetForegroundWindow();
                 //主窗口
@@ -176,6 +177,7 @@ namespace XChrome.cs
             {
                 if (me.keyPressArgs == null) return;
                 var args = me.keyPressArgs;
+                //Debug.WriteLine(args);
                 //判断是否主控内
                 var qwin = (IntPtr)Win32Helper.GetForegroundWindow();
                 //主窗口

@@ -31,11 +31,15 @@ namespace XChrome.forms
     public partial class Loading : AdonisUI.Controls.AdonisWindow
     {
         private Func<Task> _action;
-        public Loading(Window parent,Func<Task> action)
+        public Loading(Window parent,Func<Task> action,string tip="")
         {
             InitializeComponent();
             this.Owner = parent;
             this._action = action;
+            if (tip != "")
+            {
+                tipblock.Text = "..." + tip+ "...";
+            }
         }
 
         private async void AdonisWindow_Loaded(object sender, RoutedEventArgs e)

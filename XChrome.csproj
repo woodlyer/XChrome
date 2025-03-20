@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <AssemblyVersion>1.13</AssemblyVersion>
-    <FileVersion>1.13</FileVersion>
+    <AssemblyVersion>1.14</AssemblyVersion>
+    <FileVersion>1.14</FileVersion>
     <ApplicationIcon>xchrome.ico</ApplicationIcon>
     <Copyright>瑞雪社区--刹那</Copyright>
     <LangVersion>preview</LangVersion>
@@ -60,6 +60,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="forms\MCreateChrome.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Resource1.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -87,6 +90,12 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings1.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="forms\MCreateChrome.xaml">
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 
 </Project>

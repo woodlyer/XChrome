@@ -12,6 +12,7 @@ using System.Windows;
 using XChrome.cs.db;
 using XChrome.cs.win32;
 using XChrome.cs.zchrome;
+using System.Net.Http;
 
 namespace XChrome.cs
 {
@@ -23,41 +24,54 @@ namespace XChrome.cs
             return true;
 
 
+           
 
-            foreach (var screen in ScreenInfo.AllScreens)
-            {
-                // 转换为 WPF 物理像素 (考虑 DPI 缩放)
-                var scaledBounds = new Rect(
-                    screen.Bounds.X / screen.DpiScaleX,
-                    screen.Bounds.Y / screen.DpiScaleY,
-                    screen.Bounds.Width / screen.DpiScaleX,
-                    screen.Bounds.Height / screen.DpiScaleY);
 
-                Debug.WriteLine($"Display: {screen.DeviceName}");
-                Debug.WriteLine($"Primary: {screen.IsPrimary}");
-                Debug.WriteLine($"Resolution: {scaledBounds.Width}x{scaledBounds.Height}");
-            }
+            //string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            //string expath = System.IO.Path.Combine(userProfile, "AppData", "Local", "Google", "Chrome", "User Data", "Default", "Extensions");
 
-            var primaryScreen = ScreenInfo.AllScreens.FirstOrDefault(s => s.IsPrimary);
-            if (primaryScreen != null)
-            {
-                var workArea = primaryScreen.WorkingArea;
-                var scaledWorkArea = new Rect(
-                    workArea.X / primaryScreen.DpiScaleX,
-                    workArea.Y / primaryScreen.DpiScaleY,
-                    workArea.Width / primaryScreen.DpiScaleX,
-                    workArea.Height / primaryScreen.DpiScaleY);
 
-                Debug.WriteLine($"Available workspace: {scaledWorkArea}");
-            }
+            //// 启动 Windows 资源管理器并打开文件夹
+            //Process.Start(new ProcessStartInfo("explorer.exe", expath)
+            //{
+            //    UseShellExecute = true
+            //});
+
 
             return false;
         }
 
-      
-      
 
-        
+        public static async Task SendPageViewAsync(string trackingId, string clientId, string documentHostName, string documentPath)
+        {
+               HttpClient client = new HttpClient();
+            // Measurement Protocol 的收集地址（Universal Analytics 示例）
+              string TrackingUrl = "https://www.google-analytics.com/collect";
+
+            // 准备请求参数
+            var data = new FormUrlEncodedContent(new[]
+                {
+                new KeyValuePair<string, string>("v", "1"),                    // API 版本
+                new KeyValuePair<string, string>("tid", trackingId),             // 跟踪 ID
+                new KeyValuePair<string, string>("cid", clientId),               // 客户端 ID
+                new KeyValuePair<string, string>("t", "pageview"),               // 告诉 GA 这是一个页面浏览事件
+                new KeyValuePair<string, string>("dh", documentHostName),        // 主机名
+                new KeyValuePair<string, string>("dp", documentPath)             // 页面路径
+            });
+
+            // 发送 POST 请求
+            HttpResponseMessage response = await client.PostAsync(TrackingUrl, data);
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Tracking successful");
+            }
+            else
+            {
+                Console.WriteLine("Tracking failed: " + response.StatusCode);
+            }
+        }
+
+
 
     }
 }
