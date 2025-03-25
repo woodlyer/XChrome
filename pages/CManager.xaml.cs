@@ -15,12 +15,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Playwright;
 using SqlSugar;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -238,6 +240,42 @@ namespace XChrome.pages
         }
 
 
+        private async Task start_onchrome(long id)
+        {
+            bool isAutoPl = false;
+            var db = MyDb.DB;
+            var xchrome = await db.Queryable<Chrome>().Where(it => it.id==id).FirstAsync();
+            db.Close();
+            if (xchrome == null)
+            {
+                MainWindow.Toast_Error("没有找到环境！");
+                return;
+            }
+            buttonStatus.Run = false;
+            buttonStatus.Array = false;
+            buttonStatus.Stop = false;
+            buttonStatus.Control = false;
+
+
+
+            XChromeClient xc = new XChromeClient();
+            xc.Id =id;
+            xc.Proxy = xchrome.proxy;
+            xc.UserAgent = xchrome.userAgent;
+            xc.DataPath = string.IsNullOrEmpty(xchrome.datapath) ? System.IO.Path.Combine(cs.Config.chrome_data_path, xchrome.id.ToString()) : xchrome.datapath;
+            xc.Evns = xchrome.envs ?? "";
+            xc.Name = xchrome.name;
+            xc.Extensions = xchrome.extensions;
+
+            await Task.Run(async () => {
+                await ZChromeManager.Instance.OpenChrome(xc);
+            });
+            
+
+            buttonStatus.Array = true;
+            buttonStatus.Stop = true;
+            buttonStatus.Control = true;
+        }
 
         /// <summary>
         /// 启动
@@ -779,7 +817,7 @@ namespace XChrome.pages
             }
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private async void MenuItem_Click(object sender, RoutedEventArgs e)
         {
             MenuItem menuItem = sender as MenuItem;
             if (menuItem != null)
@@ -789,7 +827,8 @@ namespace XChrome.pages
                 if (currentRowData != null)
                 {
                     currentRowData.Check = true;
-                    start_btn_Click(null, null);
+                    long id = currentRowData.Id;
+                    await start_onchrome(id);
                 }
             }
         }
