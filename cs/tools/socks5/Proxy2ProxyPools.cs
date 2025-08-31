@@ -80,7 +80,8 @@ namespace XChrome.cs.tools.socks5
                             port = cs.Config.ProxySocks5Server_Port;
                         }
                     }
-                    string url = "http://[::]:" + port;
+                    //string url = "http://[::]:" + port;
+                    string url = "http://127.0.0.1:" + port;
                     Uri.TryCreate(url, UriKind.Absolute, out Uri? inboundUri);
                     IPAddress.TryParse(inboundUri.Host, out IPAddress ip);
                     IPEndPoint inboundEP = new IPEndPoint(ip, inboundUri.Port);

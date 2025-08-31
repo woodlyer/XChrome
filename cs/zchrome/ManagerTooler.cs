@@ -131,6 +131,11 @@ namespace XChrome.cs.zchrome
         {
             try
             {
+                if (proxy.StartsWith("http"))
+                {
+                    string[] pp = proxy.Split(":");
+                    return (pp[0], pp[1].Replace("//", ""), Convert.ToInt32(pp[2]), pp.Length > 3 ? pp[3] : "", pp.Length > 4 ? pp[4] : "");
+                }
                 if (!proxy.StartsWith("http") && !proxy.StartsWith("socks5"))
                 {
                     proxy = "http://" + proxy;

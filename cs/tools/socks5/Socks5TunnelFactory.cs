@@ -22,7 +22,7 @@ namespace HttpToSocks5Proxy
 
         private static readonly IdnMapping s_idnMapping = new IdnMapping();
 
-        public Socks5TunnelFactory(EndPoint endPoint, bool fastMode = true)
+        public Socks5TunnelFactory(EndPoint endPoint, bool fastMode = false)
         {
             _endPoint = endPoint;
             _fastMode = fastMode;
