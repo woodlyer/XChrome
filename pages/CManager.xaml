@@ -80,20 +80,22 @@
                         <DataGridTemplateColumn Header="状态">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <iconPacks:PackIconFontAwesome  Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center" >
-                                        <iconPacks:PackIconFontAwesome.Style>
-                                            <Style TargetType="{x:Type iconPacks:PackIconFontAwesome}">
-                                                <!-- 默认显示停止中的图标 -->
-                                                <Setter Property="Kind" Value="CircleStopSolid" />
-                                                <Style.Triggers>
-                                                    <!-- 当 IsRunning 为 true 时，显示启动中的图标 -->
-                                                    <DataTrigger Binding="{Binding IsRunning}" Value="True">
-                                                        <Setter Property="Kind" Value="PersonRunningSolid" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </iconPacks:PackIconFontAwesome.Style>
-                                    </iconPacks:PackIconFontAwesome>
+                                    <Button CommandParameter="{Binding}" Click="StatusButton_Click" 
+                                            Style="{DynamicResource {x:Static adonisUi:Styles.AccentButton}}" 
+                                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <iconPacks:PackIconFontAwesome Width="16" Height="16">
+                                            <iconPacks:PackIconFontAwesome.Style>
+                                                <Style TargetType="{x:Type iconPacks:PackIconFontAwesome}">
+                                                    <Setter Property="Kind" Value="CircleStopSolid" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                                            <Setter Property="Kind" Value="PersonRunningSolid" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </iconPacks:PackIconFontAwesome.Style>
+                                        </iconPacks:PackIconFontAwesome>
+                                    </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>

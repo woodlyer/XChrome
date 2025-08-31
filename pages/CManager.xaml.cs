@@ -276,7 +276,10 @@ namespace XChrome.pages
             buttonStatus.Stop = true;
             buttonStatus.Control = true;
         }
-
+        private void StatusButton_Click(object sender, RoutedEventArgs e)
+        {
+            ;
+        }
         /// <summary>
         /// 启动
         /// </summary>
