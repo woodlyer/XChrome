@@ -873,10 +873,81 @@ namespace XChrome.cs.zchrome
 
         public async Task<bool> CloseBrowserAsync()
         {
-            var res = await SendCommandAsync("Browser.close");
-            ChromeClose?.Invoke(_xchrome.Id);
-            CancellationTokenSource_proxy_server.Cancel();
-            return res.isSuccess;
+            // 修改: 增加对 _chromeProcess 进程对象的检查，确保它存在且未退出。
+            if (_chromeProcess == null || _chromeProcess.HasExited)
+            {
+                Log?.Invoke("Chrome process is already null or has exited.");
+                ChromeClose?.Invoke(_xchrome.Id);
+                return true;
+            }
+
+            Log?.Invoke("Attempting to gracefully close browser via DevTools protocol.");
+            try
+            {
+                // 修改: 尝试通过 DevTools 协议发送关闭命令，并设置一个超时时间。
+                // 之前版本：var res = await SendCommandAsync("Browser.close");
+                var res = await SendCommandAsync("Browser.close", timeout: 50);
+
+                // 如果命令发送成功，我们不能直接返回，因为这只代表命令被接受，不代表进程已退出
+                if (res.isSuccess)
+                {
+                    Log?.Invoke("Browser.close command sent successfully.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log?.Invoke($"Error sending Browser.close command: {ex.Message}");
+                // 如果发送命令本身失败，直接进入强制终止流程
+            }
+            finally
+            {
+                // 新增: 无论命令发送成功与否，都尝试关闭 WebSocket 连接并取消代理服务器的 CancellationToken。
+                _wsClient?.Dispose();
+                CancellationTokenSource_proxy_server.Cancel();
+            }
+
+            // 新增: 等待一段时间，让浏览器有时间退出。
+            // 使用 WaitForExit() 比 Task.Delay() 更可靠，因为它会阻塞直到进程退出或超时。
+            if (_chromeProcess != null && !_chromeProcess.HasExited)
+            {
+                if (_chromeProcess.WaitForExit(200))
+                {
+                    Log?.Invoke("Chrome process has exited gracefully.");
+                    // 新增: 在确认进程优雅退出后，通知外部状态已改变。
+                    ChromeClose?.Invoke(_xchrome.Id);
+                    return true;
+                }
+            }
+
+            // 新增: 如果超时后进程仍然存在，则强制终止。
+            if (_chromeProcess != null && !_chromeProcess.HasExited)
+            {
+                Log?.Invoke("Chrome process did not exit gracefully, forcing termination.");
+                try
+                {
+                    _chromeProcess.Kill();
+                    // 再次等待，确保进程完全终止
+                    _chromeProcess.WaitForExit();
+                    Log?.Invoke("Chrome process has been forcefully terminated.");
+                    // 新增: 在强制终止后，通知外部状态已改变。
+                    ChromeClose?.Invoke(_xchrome.Id);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Log?.Invoke($"Failed to kill Chrome process: {ex.Message}");
+                    return false;
+                }
+            }
+
+            // 之前版本的 CloseBrowserAsync 函数：
+            // var res = await SendCommandAsync("Browser.close");
+            // ChromeClose?.Invoke(_xchrome.Id);
+            // CancellationTokenSource_proxy_server.Cancel();
+            // //_chromeProcess.Kill();
+            // return res.isSuccess;
+
+            return true;
         }
 
         public void Dispose()

@@ -276,9 +276,23 @@ namespace XChrome.pages
             buttonStatus.Stop = true;
             buttonStatus.Control = true;
         }
-        private void StatusButton_Click(object sender, RoutedEventArgs e)
+        private async void StatusButton_Click(object sender, RoutedEventArgs e)
         {
-            ;
+            if (sender is System.Windows.Controls.Button button)
+            {
+                if (button.DataContext is TableItem rowData)
+                {
+                    long itemId = rowData.Id;
+                    if (rowData.IsRunning)
+                    {
+                        await ZChromeManager.Instance.CloseChrome(itemId);
+                    }
+                    else
+                    {
+                        await start_onchrome(itemId);
+                    }
+                }
+            }
         }
         /// <summary>
         /// 启动
