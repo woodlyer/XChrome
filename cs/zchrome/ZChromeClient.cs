@@ -356,7 +356,9 @@ namespace XChrome.cs.zchrome
                     try
                     {
                         await SendCommandAsync("Page.navigate", new { url = "https://www.web3tool.vip/browser?id=" + xchrome.Id + "&u=" + cs.Config.userid }, _HomePageSession);
-                    }catch(Exception ev)
+                        //await SendCommandAsync("Page.navigate", new { url = "https://whoer.net/zh"}, _HomePageSession);
+                    }
+                    catch (Exception ev)
                     {
                         cs.Loger.ErrException(ev);
                     }
