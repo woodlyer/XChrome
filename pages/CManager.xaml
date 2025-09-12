@@ -159,7 +159,7 @@
                         -->
                         
             
-                        <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="*">
+                        <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="100">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="{x:Type TextBlock}">
                                     <Setter Property="VerticalAlignment" Value="Center"/>
