@@ -491,7 +491,7 @@ namespace XChrome.cs.tools.YTools
             string[] pl = proxy.Split(new char[] { ':', '：' });
             if (pl.Length == 2)
             {
-                var p = new WebProxy(pl[0].Replace(" ", "") + ":" + pl[1].Replace(" ", ""));
+                var p = new WebProxy(pl[0].Replace("socks5_", "socks5:") + ":" + pl[1].Replace(" ", ""));
                 return p;
             }
             else
