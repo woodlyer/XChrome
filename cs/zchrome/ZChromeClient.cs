@@ -355,8 +355,8 @@ namespace XChrome.cs.zchrome
                 {
                     try
                     {
-                        await SendCommandAsync("Page.navigate", new { url = "https://www.web3tool.vip/browser?id=" + xchrome.Id + "&u=" + cs.Config.userid }, _HomePageSession);
-                        //await SendCommandAsync("Page.navigate", new { url = "https://whoer.net/zh"}, _HomePageSession);
+                        //await SendCommandAsync("Page.navigate", new { url = "https://www.web3tool.vip/browser?id=" + xchrome.Id + "&u=" + cs.Config.userid }, _HomePageSession);
+                        await SendCommandAsync("Page.navigate", new { url = "https://ipinfo.io/json"}, _HomePageSession);
                     }
                     catch (Exception ev)
                     {
